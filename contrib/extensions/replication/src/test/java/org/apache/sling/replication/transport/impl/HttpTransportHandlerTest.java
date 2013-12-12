@@ -53,6 +53,6 @@ public class HttpTransportHandlerTest {
         when(response.returnContent()).thenReturn(content);
         when(executor.execute(any(Request.class))).thenReturn(response);
         when(transportAuthenticationProvider.authenticate(any(Executor.class), any(TransportAuthenticationContext.class))).thenReturn(executor);
-        httpTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider);
+        httpTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider, new String[0]);
     }
 }

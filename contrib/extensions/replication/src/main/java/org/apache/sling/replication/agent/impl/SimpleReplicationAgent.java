@@ -60,14 +60,19 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
     private final String[] rules;
 
+    private final String[] transportProperties;
+
     public SimpleReplicationAgent(String name, String endpoint, String[] rules,
-                                  TransportHandler transportHandler, ReplicationPackageBuilder packageBuilder,
+                                  String[] transportProperties,
+                                  TransportHandler transportHandler,
+                                  ReplicationPackageBuilder packageBuilder,
                                   ReplicationQueueProvider queueProvider,
                                   TransportAuthenticationProvider<?, ?> transportAuthenticationProvider,
                                   ReplicationQueueDistributionStrategy queueDistributionHandler) {
         this.name = name;
         this.endpoint = endpoint;
         this.rules = rules;
+        this.transportProperties = transportProperties;
         this.transportHandler = transportHandler;
         this.packageBuilder = packageBuilder;
         this.queueProvider = queueProvider;
@@ -127,7 +132,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
         try {
             if (transportHandler != null) {
                 transportHandler.transport(item, new ReplicationEndpoint(endpoint),
-                        transportAuthenticationProvider);
+                        transportAuthenticationProvider, transportProperties);
                 return true;
             } else {
                 if (log.isWarnEnabled()) {

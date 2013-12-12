@@ -18,10 +18,8 @@
  */
 package org.apache.sling.replication.agent.impl;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -106,6 +104,9 @@ public class ReplicationAgentServiceFactory {
     @Property
     private static final String AUTHENTICATION_PROPERTIES = ReplicationAgentConfiguration.AUTHENTICATION_PROPERTIES;
 
+    @Property(cardinality = 10)
+    private static final String TRANSPORT_PROPERTIES = ReplicationAgentConfiguration.TRANSPORT_PROPERTIES;
+
     @Property
     private static final String RULES = ReplicationAgentConfiguration.RULES;
 
@@ -168,6 +169,9 @@ public class ReplicationAgentServiceFactory {
             Map<String, String> authenticationProperties = PropertiesUtil.toMap(config.get(AUTHENTICATION_PROPERTIES), new String[0]);
             props.put(AUTHENTICATION_PROPERTIES, authenticationProperties);
 
+            String[] transportProperties = PropertiesUtil.toStringArray(config.get(TRANSPORT_PROPERTIES), new String[0]);
+            props.put(TRANSPORT_PROPERTIES, transportProperties);
+
             String[] rules = PropertiesUtil.toStringArray(config.get(RULES), new String[0]);
             props.put(RULES, rules);
 
@@ -191,7 +195,7 @@ public class ReplicationAgentServiceFactory {
                         transportHandler, transportAuthenticationProvider, endpoint, packageBuilder, queueProvider, queueDistributionStrategy});
             }
 
-            ReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, rules, transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, queueDistributionStrategy);
+            ReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, rules, transportProperties, transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, queueDistributionStrategy);
 
             // register agent service
             agentReg = context.registerService(ReplicationAgent.class.getName(), agent, props);

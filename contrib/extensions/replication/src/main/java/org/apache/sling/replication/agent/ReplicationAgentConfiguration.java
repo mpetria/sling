@@ -42,6 +42,8 @@ public class ReplicationAgentConfiguration {
 
     public static final String AUTHENTICATION_PROPERTIES = "authentication.properties";
 
+    public static final String TRANSPORT_PROPERTIES = "transport.properties";
+
     public static final String DISTRIBUTION = "ReplicationQueueDistributionStrategy.target";
 
     public static final String RULES = "rules";

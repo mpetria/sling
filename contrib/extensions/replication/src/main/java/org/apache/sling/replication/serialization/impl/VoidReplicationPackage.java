@@ -39,10 +39,13 @@ public class VoidReplicationPackage implements ReplicationPackage {
 
     private final String id;
 
+    private final String action;
+
     public VoidReplicationPackage(ReplicationRequest request, String type) {
         this.type = type;
         this.paths = request.getPaths();
-        this.id = ReplicationActionType.DELETE.toString() + ':' + Arrays.toString(request.getPaths()) + ':' + request.getTime();
+        this.action = request.getAction().toString();
+        this.id = request.getAction().toString() + ':' + Arrays.toString(request.getPaths()) + ':' + request.getTime();
     }
 
     public static VoidReplicationPackage fromStream(InputStream stream) throws IOException {
@@ -84,7 +87,6 @@ public class VoidReplicationPackage implements ReplicationPackage {
     }
 
     public String getAction() {
-        return ReplicationActionType.DELETE.toString();
+        return action;
     }
-
 }

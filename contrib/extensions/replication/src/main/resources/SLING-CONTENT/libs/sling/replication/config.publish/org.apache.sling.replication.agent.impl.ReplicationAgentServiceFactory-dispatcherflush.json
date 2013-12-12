@@ -1,0 +1,17 @@
+{
+    "jcr:primaryType" : "sling:OsgiConfig",
+    "name" : "dispatcherflush",
+    "endpoint" : "http://localhost:8000/dispatcher/invalidate.cache",
+    "TransportHandler.target" : "(name=http)",
+    "TransportHandler.properties" : [
+        "body=none",
+        "header=CQ-Action: {action}",
+        "header=CQ-Handle: {path}",
+        "override=action.add: activate",
+        "override=action.delete: delete" ],
+    "ReplicationPackageBuilder.target" : "(name=void)",
+    "ReplicationQueueProvider.target" : "(name=sjh)",
+    "ReplicationQueueDistributionStrategy.target" : "(name=single)",
+    "rules" : ["trigger on path: /content/usergenerated"],
+    "enabled" : true
+}

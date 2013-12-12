@@ -53,7 +53,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                         transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationPackage item = mock(ReplicationPackage.class);
         assertTrue(agent.process(item));
@@ -68,7 +68,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                         transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationRequest request = new ReplicationRequest(System.nanoTime(),
                         ReplicationActionType.ADD, "/");
@@ -92,7 +92,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                 transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationRequest request = new ReplicationRequest(System.nanoTime(),
                 ReplicationActionType.ADD, "/");
@@ -119,7 +119,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                 transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationRequest request = new ReplicationRequest(System.nanoTime(),
                 ReplicationActionType.ADD, "/");
@@ -141,7 +141,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                 transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationQueue queue = mock(ReplicationQueue.class);
         when(queueProvider.getDefaultQueue(agent)).thenReturn(queue);
@@ -157,7 +157,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                 transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationQueue queue = mock(ReplicationQueue.class);
         when(queueProvider.getQueue(agent, "priority")).thenReturn(queue);
@@ -173,7 +173,7 @@ public class SimpleReplicationAgentTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         TransportAuthenticationProvider transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         ReplicationQueueDistributionStrategy distributionHandler = mock(ReplicationQueueDistributionStrategy.class);
-        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0],
+        SimpleReplicationAgent agent = new SimpleReplicationAgent(name, endpoint, new String[0], new String[0],
                 transportHandler, packageBuilder, queueProvider, transportAuthenticationProvider, distributionHandler);
         ReplicationQueue queue = mock(ReplicationQueue.class);
         when(queueProvider.getQueue(agent, "priority")).thenReturn(queue);

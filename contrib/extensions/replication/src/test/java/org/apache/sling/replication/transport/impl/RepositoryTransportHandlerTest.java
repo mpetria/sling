@@ -48,7 +48,7 @@ public class RepositoryTransportHandlerTest {
         TransportAuthenticationProvider<SlingRepository, Session> transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
         try {
             handler.transport(null, new ReplicationEndpoint("repo://var/outbox/replication/rev1"),
-                    transportAuthenticationProvider);
+                    transportAuthenticationProvider, new String[0]);
             fail("cannot deliver without a proper session");
         } catch (ReplicationTransportException re) {
             // failure expected
@@ -87,6 +87,6 @@ public class RepositoryTransportHandlerTest {
         when(replicationPackage.getId()).thenReturn("some-id");
         when(replicationPackage.getPaths()).thenReturn(new String[]{"/apps", "/libs"});
         handler.transport(replicationPackage, new ReplicationEndpoint("repo:/" + repoPath),
-                transportAuthenticationProvider);
+                transportAuthenticationProvider, new String[0]);
     }
 }

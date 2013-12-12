@@ -20,6 +20,9 @@ package org.apache.sling.replication.transport.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -53,7 +56,8 @@ public class HttpTransportHandler implements TransportHandler {
     @SuppressWarnings("unchecked")
     public void transport(ReplicationPackage replicationPackage,
                           ReplicationEndpoint replicationEndpoint,
-                          TransportAuthenticationProvider<?, ?> transportAuthenticationProvider)
+                          TransportAuthenticationProvider<?, ?> transportAuthenticationProvider,
+                          String[] transportProperties)
             throws ReplicationTransportException {
         if (log.isInfoEnabled()) {
             log.info("delivering package {} to {} using auth {}",
@@ -72,10 +76,18 @@ public class HttpTransportHandler implements TransportHandler {
             String pathsString = Arrays.toString(paths);
             Request req = Request.Post(replicationEndpoint.getUri()).useExpectContinue()
                     .addHeader(ReplicationHeader.TYPE.toString(), type);
-            if (replicationPackage.getInputStream() != null) {
+
+            CustomizationData customizationData = parseTransportProperties(transportProperties);
+
+            if (!customizationData.shouldIgnoreBody() && replicationPackage.getInputStream() != null) {
                 req = req.bodyStream(replicationPackage.getInputStream(),
                         ContentType.APPLICATION_OCTET_STREAM);
             }
+            Map<String, String> variables = new HashMap<String, String>();
+            variables.put("action", replicationPackage.getAction());
+            variables.put("path", replicationPackage.getPaths()[0]); // treat all paths
+            customizeHeaders(req, variables, customizationData.getHeaderTemplates(), customizationData.getVariableOverrides());
+
             Response response = executor.execute(req);
             if (response != null) {
                 Content content = response.returnContent();
@@ -91,6 +103,90 @@ public class HttpTransportHandler implements TransportHandler {
             throw new ReplicationTransportException(e);
         }
     }
+
+    private CustomizationData parseTransportProperties(String[] transportProperties){
+        Map<String,String> headerTemplates = new HashMap<String,String>();
+        Map<String, String> variableOverrides = new HashMap<String,String>();
+        boolean ignoreBody = false;
+
+        for (String property : transportProperties){
+            if (property.startsWith("body=")){
+                int idx = property.indexOf("=");
+                String value = property.substring(idx+1).trim();
+                if(value.equals("none")){
+                    ignoreBody = true;
+                }
+            }
+            else  if (property.startsWith("header=")){
+                int idx = property.indexOf("=");
+                String value = property.substring(idx+1).trim();
+
+                idx = value.indexOf(":");
+                if(idx >= 0){
+                    headerTemplates.put(value.substring(0,idx).trim(), value.substring(idx+1).trim());
+                }
+
+            }
+            else  if (property.startsWith("override=")){
+                int idx = property.indexOf("=");
+                String value = property.substring(idx+1).trim();
+
+                idx = value.indexOf(":");
+                if(idx >= 0){
+                    variableOverrides.put(value.substring(0,idx).trim(), value.substring(idx+1).trim());
+                }
+            }
+        }
+
+        return new CustomizationData(headerTemplates, variableOverrides, ignoreBody);
+
+    }
+
+    private void customizeHeaders(Request reg,  Map<String, String> variables,
+                                  Map<String,String> headerTemplates, Map<String, String> variableOverrides) {
+
+        for(String headerName : headerTemplates.keySet()){
+            String headerValue = headerTemplates.get(headerName);
+
+            for (String variableName : variables.keySet()){
+                String variableValue = variables.get(variableName);
+                String variableOverrideName = variableName + "." + variableValue;
+
+                if(variableOverrides.containsKey(variableOverrideName)){
+                    variableValue = variableOverrides.get(variableOverrideName);
+                }
+                headerValue = headerValue.replaceFirst("\\{" + variableName + "\\}", variableValue);
+            }
+
+            reg.addHeader(headerName.trim(), headerValue.trim());
+        }
+
+    }
+
+    private class CustomizationData {
+        Map<String,String> headerTemplates;
+        Map<String, String> variableOverrides;
+        boolean ignoreBody;
+
+        private CustomizationData(Map<String, String> headerTemplates, Map<String, String> variableOverrides, boolean ignoreBody) {
+            this.headerTemplates = headerTemplates;
+            this.variableOverrides = variableOverrides;
+            this.ignoreBody = ignoreBody;
+        }
+
+        public Map<String, String> getHeaderTemplates() {
+            return headerTemplates;
+        }
+
+        public Map<String, String> getVariableOverrides() {
+            return variableOverrides;
+        }
+
+        private boolean shouldIgnoreBody() {
+            return ignoreBody;
+        }
+    }
+
 
     public boolean supportsAuthenticationProvider(TransportAuthenticationProvider<?, ?> transportAuthenticationProvider) {
         return transportAuthenticationProvider.canAuthenticate(Executor.class);

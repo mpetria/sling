@@ -57,7 +57,8 @@ public class PollingTransportHandler implements TransportHandler {
     @SuppressWarnings("unchecked")
     public void transport(ReplicationPackage replicationPackage,
                     ReplicationEndpoint replicationEndpoint,
-                    TransportAuthenticationProvider<?, ?> transportAuthenticationProvider)
+                    TransportAuthenticationProvider<?, ?> transportAuthenticationProvider,
+                    String[] transportProperties)
                     throws ReplicationTransportException {
         if (log.isInfoEnabled()) {
             log.info("polling from {}", replicationEndpoint.getUri());

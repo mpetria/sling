@@ -36,10 +36,11 @@ public interface TransportHandler {
      * @param replicationEndpoint a {@link ReplicationEndpoint} to transport the package to
      * @param transportAuthenticationProvider
      *                            a {@link TransportAuthenticationProvider} to authenticate the endpoint
+     * @param transportProperties an array of properties to additionally customize transport
      * @throws ReplicationTransportException if any error occurs during the transport
      */
     void transport(ReplicationPackage replicationPackage, ReplicationEndpoint replicationEndpoint,
-                   TransportAuthenticationProvider<?, ?> transportAuthenticationProvider)
+                   TransportAuthenticationProvider<?, ?> transportAuthenticationProvider, String[] transportProperties)
             throws ReplicationTransportException;
 
     /**

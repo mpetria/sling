@@ -57,6 +57,6 @@ public class PollingTransportHandlerTest {
         when(httpResponse.getEntity()).thenReturn(entity);
         when(executor.execute(any(Request.class))).thenReturn(response);
         when(transportAuthenticationProvider.authenticate(any(Executor.class), any(TransportAuthenticationContext.class))).thenReturn(executor);
-        pollingTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider);
+        pollingTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider, new String[0]);
     }
 }

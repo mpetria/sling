@@ -63,7 +63,8 @@ public class RepositoryTransportHandler implements TransportHandler {
 
     public void transport(ReplicationPackage replicationPackage,
                           ReplicationEndpoint replicationEndpoint,
-                          TransportAuthenticationProvider<?, ?> transportAuthenticationProvider)
+                          TransportAuthenticationProvider<?, ?> transportAuthenticationProvider,
+                          String[] transportProperties)
             throws ReplicationTransportException {
         if (validateEndpoint(replicationEndpoint)) {
             Session session = null;
