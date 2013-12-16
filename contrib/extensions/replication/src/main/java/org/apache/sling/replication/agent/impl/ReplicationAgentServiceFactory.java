@@ -104,7 +104,7 @@ public class ReplicationAgentServiceFactory {
     @Property
     private static final String AUTHENTICATION_PROPERTIES = ReplicationAgentConfiguration.AUTHENTICATION_PROPERTIES;
 
-    @Property(cardinality = 10)
+    @Property(cardinality = 50)
     private static final String TRANSPORT_PROPERTIES = ReplicationAgentConfiguration.TRANSPORT_PROPERTIES;
 
     @Property

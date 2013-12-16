@@ -3,15 +3,15 @@
     "name" : "dispatcherflush",
     "endpoint" : "http://localhost:8000/dispatcher/invalidate.cache",
     "TransportHandler.target" : "(name=http)",
-    "TransportHandler.properties" : [
-        "body=none",
-        "header=CQ-Action: {action}",
-        "header=CQ-Handle: {path}",
-        "override=action.add: activate",
-        "override=action.delete: delete" ],
+    "transport.properties" : [
+        "body=empty",
+        "header.add= CQ-Action: Activate",
+        "header.delete= CQ-Action: Delete",
+        "header=CQ-Handle: {path}" ],
     "ReplicationPackageBuilder.target" : "(name=void)",
-    "ReplicationQueueProvider.target" : "(name=sjh)",
+    "ReplicationQueueProvider.target" : "(name=simple)",
     "ReplicationQueueDistributionStrategy.target" : "(name=single)",
+    "TransportAuthenticationProviderFactory.target" : "(name=nop)",
     "rules" : ["trigger on path: /content/usergenerated"],
-    "enabled" : true
+    "enabled" : false
 }

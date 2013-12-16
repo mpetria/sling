@@ -19,6 +19,10 @@
 package org.apache.sling.replication.transport.impl;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -29,10 +33,14 @@ import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationContext;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationProvider;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 /**
  * Testcase for {@link HttpTransportHandler}
@@ -54,5 +62,28 @@ public class HttpTransportHandlerTest {
         when(executor.execute(any(Request.class))).thenReturn(response);
         when(transportAuthenticationProvider.authenticate(any(Executor.class), any(TransportAuthenticationContext.class))).thenReturn(executor);
         httpTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider, new String[0]);
+    }
+
+    @Test
+    public void testHttpTransportWithMultipleCalls() throws Exception {
+        HttpTransportHandler httpTransportHandler = new HttpTransportHandler();
+
+        ReplicationPackage replicationPackage = mock(ReplicationPackage.class);
+        when(replicationPackage.getAction()).thenReturn(ReplicationActionType.ADD.toString());
+        when(replicationPackage.getType()).thenReturn("test");
+        when(replicationPackage.getPaths()).thenReturn(new String[]{"/content/a", "/content/b"});
+
+        ReplicationEndpoint replicationEndpoint = new ReplicationEndpoint(new URI("http://localhost:8080/system/replication/receive"));
+        TransportAuthenticationProvider<Executor, Executor> transportAuthenticationProvider = mock(TransportAuthenticationProvider.class);
+        Executor executor = mock(Executor.class);
+        Response response = mock(Response.class);
+        Content content = mock(Content.class);
+        when(response.returnContent()).thenReturn(content);
+        when(executor.execute(any(Request.class))).thenReturn(response);
+        when(transportAuthenticationProvider.authenticate(any(Executor.class), any(TransportAuthenticationContext.class))).thenReturn(executor);
+
+        httpTransportHandler.transport(replicationPackage, replicationEndpoint, transportAuthenticationProvider, new String[] {"header=PathHeader:{path}"});
+
+        verify(executor, times(2)).execute(any(Request.class));
     }
 }
