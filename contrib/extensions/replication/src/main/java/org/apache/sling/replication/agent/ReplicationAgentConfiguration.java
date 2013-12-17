@@ -64,6 +64,8 @@ public class ReplicationAgentConfiguration {
 
     private final String[] authenticationProperties;
 
+    private final String[] transportProperties;
+
     private final String[] rules;
 
     public ReplicationAgentConfiguration(Dictionary<?, ?> dictionary) {
@@ -77,11 +79,17 @@ public class ReplicationAgentConfiguration {
         this.targetTransportHandler = PropertiesUtil.toString(dictionary.get(TRANSPORT), "");
         String[] ap = PropertiesUtil.toStringArray(dictionary.get(AUTHENTICATION_PROPERTIES));
         this.authenticationProperties = ap != null ? ap : new String[0];
+        String[] tp = PropertiesUtil.toStringArray(dictionary.get(TRANSPORT_PROPERTIES));
+        this.transportProperties = tp != null ? tp : new String[0];
         this.rules = PropertiesUtil.toStringArray(dictionary.get(RULES), new String[0]);
     }
 
     public String[] getAuthenticationProperties() {
         return authenticationProperties;
+    }
+
+    public String[] getTransportProperties() {
+        return transportProperties;
     }
 
     public String getEndpoint() {
@@ -110,13 +118,17 @@ public class ReplicationAgentConfiguration {
 
     @Override
     public String toString() {
-        return "{\"name\":\"" + name + "\", \"endpoint\":\"" + endpoint + "\", \"targetTransportHandler\":\""
-                        + targetTransportHandler + "\", \"targetReplicationBuilder\":\""
-                        + targetReplicationBuilder + "\", \"targetReplicationQueueProvider\":\""
-                        + targetReplicationQueueProvider + "\", \"targetAuthenticationHandlerFactory\":\""
-                        + targetAuthenticationHandlerFactory + "\", \"authenticationProperties\":\""
-                        + Arrays.toString(authenticationProperties) + "\", \"rules\":\""
-                        + Arrays.toString(rules) + "\"}";
+        return "{"
+                        + "\"name\":\"" + name + "\""
+                        + ", \"endpoint\":\"" + endpoint + "\""
+                        + ", \"targetTransportHandler\":\"" + targetTransportHandler + "\""
+                        + ", \"targetReplicationBuilder\":\"" + targetReplicationBuilder + "\""
+                        + ", \"targetReplicationQueueProvider\":\"" + targetReplicationQueueProvider + "\""
+                        + ", \"targetAuthenticationHandlerFactory\":\"" + targetAuthenticationHandlerFactory + "\""
+                        + ", \"authenticationProperties\":\"" + Arrays.toString(authenticationProperties) + "\""
+                        + ", \"rules\":\"" + Arrays.toString(rules) + "\""
+                        + ", \"transportProperties\":\"" + Arrays.toString(transportProperties) + "\""
+                +"}";
     }
 
 }

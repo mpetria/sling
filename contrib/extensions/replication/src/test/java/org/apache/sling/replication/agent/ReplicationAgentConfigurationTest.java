@@ -37,6 +37,7 @@ public class ReplicationAgentConfigurationTest {
         assertNotNull(replicationAgentConfiguration.getTargetReplicationBuilder());
         assertNotNull(replicationAgentConfiguration.getTargetReplicationQueueProvider());
         assertNotNull(replicationAgentConfiguration.getTargetTransportHandler());
+        assertNotNull(replicationAgentConfiguration.getTransportProperties());
     }
 
 }
