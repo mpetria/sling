@@ -52,7 +52,8 @@ public interface ReplicationPackage extends Serializable {
     String getType();
 
     /**
-     * get package stream
+     * get package stream.
+     * a new stream is created for each call and it is the caller's obligation to close the stream.
      * @return an {@link InputStream}
      * @throws IOException
      */

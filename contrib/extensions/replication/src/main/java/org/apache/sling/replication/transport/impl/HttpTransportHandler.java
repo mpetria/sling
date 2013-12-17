@@ -18,9 +18,12 @@
  */
 package org.apache.sling.replication.transport.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
@@ -105,20 +108,31 @@ public class HttpTransportHandler implements TransportHandler {
         Request req = Request.Post(replicationEndpoint.getUri()).useExpectContinue()
                 .addHeader(ReplicationHeader.TYPE.toString(), type);
 
-        if (customBody == null && replicationPackage.getInputStream() != null) {
-            req = req.bodyStream(replicationPackage.getInputStream(),
-                    ContentType.APPLICATION_OCTET_STREAM);
-        }
-        else if(customBody !=null) {
-            req = req.bodyString(customBody, ContentType.DEFAULT_TEXT);
+        InputStream inputStream = null;
+        Response response = null;
 
+        try{
+            if (customBody == null) {
+                inputStream = replicationPackage.getInputStream();
+            }
+            else if(customBody != null) {
+                inputStream = new ByteArrayInputStream(customBody.getBytes());
+            }
+
+            if(inputStream != null) {
+                req = req.bodyStream(inputStream, ContentType.APPLICATION_OCTET_STREAM);
+            }
+
+            for(String header : customHeaders){
+                addHeader(req, header);
+            }
+
+            response = executor.execute(req);
+        }
+        finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
-        for(String header : customHeaders){
-            addHeader(req, header);
-        }
-
-        Response response = executor.execute(req);
         if (response != null) {
             Content content = response.returnContent();
             if (log.isInfoEnabled()) {
