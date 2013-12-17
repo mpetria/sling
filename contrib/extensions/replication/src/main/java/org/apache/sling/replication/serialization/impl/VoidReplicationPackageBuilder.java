@@ -27,6 +27,8 @@ import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuildingException;
 import org.apache.sling.replication.serialization.ReplicationPackageReadingException;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Component(metatype = false)
@@ -48,6 +50,11 @@ public class VoidReplicationPackageBuilder implements ReplicationPackageBuilder 
     }
 
     public ReplicationPackage getPackage(String id) {
-        return null;
+        try {
+            return VoidReplicationPackage.fromStream(new ByteArrayInputStream(id.getBytes()));
+        }
+        catch (IOException ex){
+            return null;
+        }
     }
 }
