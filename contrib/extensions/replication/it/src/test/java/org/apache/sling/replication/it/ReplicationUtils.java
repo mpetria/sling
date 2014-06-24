@@ -96,8 +96,8 @@ public class ReplicationUtils {
     }
 
 
-    public static void replicate(SlingInstance slingInstance, String agent, ReplicationActionType action, String... paths) throws IOException {
-        String agentResource = agentUrl("publish");
+    public static void replicate(SlingInstance slingInstance, String agentName, ReplicationActionType action, String... paths) throws IOException {
+        String agentResource = agentUrl(agentName);
 
 
         List<String> args = new ArrayList<String>();

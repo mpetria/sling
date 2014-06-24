@@ -18,15 +18,21 @@
  */
 package org.apache.sling.replication.servlet;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.http.entity.ContentType;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
+import org.apache.sling.replication.agent.ReplicationAgent;
 import org.apache.sling.replication.communication.ReplicationHeader;
+import org.apache.sling.replication.communication.ReplicationParameter;
 import org.apache.sling.replication.resources.ReplicationConstants;
+import org.apache.sling.replication.serialization.ReplicationPackage;
+import org.apache.sling.replication.serialization.ReplicationPackageExporter;
 import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,33 +59,59 @@ public class ReplicationPackageExporterServlet extends SlingAllMethodsServlet {
     protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response)
             throws ServletException, IOException {
 
-        ReplicationPackageImporter replicationPackageImporter = request
+        ReplicationPackageExporter replicationPackageExporter = request
                 .getResource()
-                .adaptTo(ReplicationPackageImporter.class);
+                .adaptTo(ReplicationPackageExporter.class);
 
         boolean success = false;
         final long start = System.currentTimeMillis();
-        response.setContentType("text/plain");
-        response.setCharacterEncoding("utf-8");
 
-        InputStream stream = request.getInputStream();
-        String type = request.getHeader(ReplicationHeader.TYPE.toString());
+        response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
+
+
         try {
-           success = replicationPackageImporter.importStream(stream, type);
-        } catch (final Exception e) {
-            response.setStatus(400);
-            if (log.isErrorEnabled()) {
-                log.error("Error during replication: {}", e.getMessage(), e);
-            }
-            response.getWriter().print("error: " + e.toString());
-        } finally {
-            final long end = System.currentTimeMillis();
-            if (log.isInfoEnabled()) {
-                log.info("Processed replication request in {}ms: : {}", new Object[]{
-                        end - start, success});
-            }
-        }
+            // get first item
+            ReplicationPackage replicationPackage = replicationPackageExporter.exportPackage();
 
+            if (replicationPackage != null) {
+                InputStream inputStream = null;
+                int bytesCopied = -1;
+                try {
+                    inputStream = replicationPackage.createInputStream();
+                    bytesCopied = IOUtils.copy(inputStream, response.getOutputStream());
+                }
+                finally {
+                    IOUtils.closeQuietly(inputStream);
+                }
+
+                setPackageHeaders(response, replicationPackage);
+
+                // delete the package permanently
+                replicationPackage.delete();
+
+                log.info("{} bytes written into the response", bytesCopied);
+
+            } else {
+                log.info("nothing to fetch");
+            }
+            // everything ok
+            response.setStatus(200);
+        } catch (Exception e) {
+            response.setStatus(503);
+            log.error("error while reverse replicating from agent", e);
+        }
+        finally {
+            final long end = System.currentTimeMillis();
+            log.info("Processed replication export request in {}ms: : {}", new Object[]{end - start, success});
+        }
+    }
+
+    void setPackageHeaders(SlingHttpServletResponse response, ReplicationPackage replicationPackage){
+        response.setHeader(ReplicationHeader.TYPE.toString(), replicationPackage.getType());
+        response.setHeader(ReplicationHeader.ACTION.toString(), replicationPackage.getAction());
+        for (String path : replicationPackage.getPaths()){
+            response.setHeader(ReplicationHeader.PATH.toString(), path);
+        }
     }
 
 }

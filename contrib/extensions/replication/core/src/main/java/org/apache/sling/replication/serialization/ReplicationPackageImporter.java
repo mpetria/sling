@@ -24,14 +24,5 @@ import java.io.InputStream;
  * A {@link org.apache.sling.replication.serialization.ReplicationPackage} importer
  */
 public interface ReplicationPackageImporter {
-
-    /**
-     * Synchronously import the stream of a {@link org.apache.sling.replication.serialization.ReplicationPackage}
-     *
-     * @param stream the <code>InputStream</code> of the given <code>ReplicationPackage</code>
-     * @param type   the <code>String</code> representing the ({@link ReplicationPackage#getType() type} of the given package
-     * @return <code>true</code> if successfully imported, <code>false</code> otherwise
-     */
-    boolean importStream(InputStream stream, String type);
-
+    boolean importPackage(ReplicationPackage replicationPackage);
 }

@@ -27,6 +27,7 @@ import org.apache.sling.replication.event.ReplicationEventFactory;
 import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilderProvider;
+import org.apache.sling.replication.serialization.SimpleReplicationPackage;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -34,6 +35,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.when;
 
 /**
@@ -45,8 +47,9 @@ public class DefaultReplicationPackageImporterTest {
     public void testSynchronousImportWithoutServices() throws Exception {
         DefaultReplicationPackageImporter importer = new DefaultReplicationPackageImporter();
         InputStream stream = mock(InputStream.class);
-        assertFalse(importer.importStream(stream, "some-type"));
-        assertFalse(importer.importStream(stream, null));
+
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, "some-type", stream)));
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, null, stream)));
     }
 
     @Test
@@ -66,9 +69,10 @@ public class DefaultReplicationPackageImporterTest {
         when(replicationPackageBuilderProvider.getReplicationPackageBuilder("void")).thenReturn(packageBuilder);
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
+
         InputStream stream = mock(InputStream.class);
-        assertFalse(importer.importStream(stream, "some-type"));
-        assertFalse(importer.importStream(stream, null));
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, "some-type", stream)));
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, null, stream)));
     }
 
     @Test
@@ -89,7 +93,7 @@ public class DefaultReplicationPackageImporterTest {
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
         InputStream stream = mock(InputStream.class);
-        assertTrue(importer.importStream(stream, "void"));
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, "void", stream)));
     }
 
     @Test
@@ -109,9 +113,7 @@ public class DefaultReplicationPackageImporterTest {
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
         InputStream stream = mock(InputStream.class);
-        assertFalse(importer.importStream(stream, null));
+        assertFalse(importer.importPackage(new SimpleReplicationPackage(null, null, "some-type", stream)));
     }
-
-
 
 }

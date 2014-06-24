@@ -46,9 +46,6 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
 
     public static final String NAME = "default";
 
-    private static final String QUEUE_NAME = "replication-package-import";
-    private static final String QUEUE_TOPIC = "org/apache/sling/replication/import";
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Reference
@@ -58,16 +55,20 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
     private ReplicationEventFactory replicationEventFactory;
 
 
-    public boolean importStream(InputStream stream, String type) {
+    public boolean importPackage(ReplicationPackage replicationPackage) {
         boolean success = false;
+        InputStream packageStream = null;
         try {
-            ReplicationPackage replicationPackage = getReplicationPackage(stream, type, true);
 
-            if (replicationPackage != null) {
-                if (log.isInfoEnabled()) {
-                    log.info("replication package read and installed for path(s) {}",
-                            Arrays.toString(replicationPackage.getPaths()));
-                }
+            packageStream = replicationPackage.createInputStream();
+
+            ReplicationPackageBuilder replicationPackageBuilder =
+                    replicationPackageBuilderProvider.getReplicationPackageBuilder(replicationPackage.getType());
+
+            ReplicationPackage installedPackage = replicationPackageBuilder.readPackage(packageStream, true);
+
+            if (installedPackage != null) {
+                log.info("replication package read and installed for path(s) {}", Arrays.toString(replicationPackage.getPaths()));
 
                 Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
                 dictionary.put("replication.action", replicationPackage.getAction());
@@ -77,35 +78,12 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
 
                 replicationPackage.delete();
             } else {
-                if (log.isWarnEnabled()) {
-                    log.warn("could not read a replication package");
-                }
+                log.warn("could not read a replication package");
             }
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("cannot import a package from the given stream of type {}", type);
-            }
+            log.error("cannot import a package from the given stream of type {}", replicationPackage.getType());
         }
         return success;
     }
-
-    private ReplicationPackage getReplicationPackage(InputStream stream, String type, boolean install) throws ReplicationPackageReadingException {
-        ReplicationPackage replicationPackage = null;
-        if (type != null) {
-            ReplicationPackageBuilder replicationPackageBuilder = replicationPackageBuilderProvider.getReplicationPackageBuilder(type);
-            if (replicationPackageBuilder != null) {
-                replicationPackage = replicationPackageBuilder.readPackage(stream, install);
-            } else {
-                if (log.isWarnEnabled()) {
-                    log.warn("cannot read streams of type {}", type);
-                }
-            }
-        } else {
-            throw new ReplicationPackageReadingException("could not get a replication package of type 'null'");
-        }
-        return replicationPackage;
-    }
-
-
 
 }
