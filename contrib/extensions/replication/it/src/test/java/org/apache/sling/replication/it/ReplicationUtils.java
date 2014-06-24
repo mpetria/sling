@@ -149,23 +149,23 @@ public class ReplicationUtils {
     }
 
     public static String agentUrl(String agentName) {
-        return REPLICATION_ROOT_PATH + "/agent/" + agentName;
+        return REPLICATION_ROOT_PATH + "/agents/" + agentName;
     }
 
     public static String queueUrl(String agentName) {
-        return REPLICATION_ROOT_PATH + "/agent/" + agentName +"/queue";
+        return REPLICATION_ROOT_PATH + "/agents/" + agentName +"/queue";
     }
 
     public static String agentConfigUrl(String agentName) {
-        return REPLICATION_ROOT_PATH + "/config/agent/" + agentName;
+        return REPLICATION_ROOT_PATH + "/config/agents/" + agentName;
     }
 
 
     public static String importerRootUrl() {
-        return REPLICATION_ROOT_PATH + "/importer";
+        return REPLICATION_ROOT_PATH + "/importers";
     }
 
     public static String importerUrl(String importerName) {
-        return REPLICATION_ROOT_PATH + "/importer/" + importerName;
+        return REPLICATION_ROOT_PATH + "/importers/" + importerName;
     }
 }
