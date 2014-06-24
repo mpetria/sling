@@ -1,7 +1,8 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
-    "name" : "http-author-receive",
     "TransportAuthenticationProviderFactory.target" : "(name=user)",
     "authentication.properties" : ["user=admin","password=admin"],
-    "endpoints" : [ "http://localhost:4502/libs/sling/replication/receive" ]
+    "ReplicationPackageBuilder.target" : "(name=vlt)",
+    "endpoints" : [ "http://localhost:4503/libs/sling/replication/exporters/agent" ],
+    "runModes" : ["author"]
 }
