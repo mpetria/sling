@@ -23,10 +23,12 @@ public class ReplicationConstants {
     public static final String  AGENT_RESOURCE_TYPE = "replication/agent";
     public static final String  AGENT_QUEUE_RESOURCE_TYPE = "replication/agent/queue";
     public static final String  AGENT_QUEUE_EVENT_RESOURCE_TYPE = "replication/agent/queue";
-    public static final String  AGENT_ROOT_RESOURCE_TYPE = "replication/agents";
-    public static final String  IMPORTER_ROOT_RESOURCE_TYPE = "replication/importers";
-    public static final String  IMPORTER_RESOURCE_TYPE = "replication/importer";
+    public static final String  AGENT_ROOT_RESOURCE_TYPE = "replication/agent/list";
 
+    public static final String  IMPORTER_RESOURCE_TYPE = "replication/importer";
+    public static final String  EXPORTER_RESOURCE_TYPE = "replication/exporter";
+
+    public static final String SUFFIX_LIST = "/list";
     public static final String SUFFIX_AGENT_QUEUE = "/queue";
     public static final String SUFFIX_AGENT_QUEUE_EVENT = "/queue/event";
 }
