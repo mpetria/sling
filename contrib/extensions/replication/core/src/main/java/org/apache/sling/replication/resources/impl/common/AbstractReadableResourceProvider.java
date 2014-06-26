@@ -92,7 +92,7 @@ public abstract class AbstractReadableResourceProvider implements ResourceProvid
                 Object adaptable = properties.remove(ADAPTABLE_PROPERTY_NAME);
 
                 Map<String, String> additionalProperties = additionalResourcePropertiesMap.get(MAIN_RESOURCE_PREFIX);
-                if (additionalProperties.containsKey("sling:resourceType")) {
+                if (!properties.containsKey("sling:resourceType") && additionalProperties.containsKey("sling:resourceType")) {
                     properties.put("sling:resourceType", additionalProperties.get("sling:resourceType") +"/list");
                 }
 
