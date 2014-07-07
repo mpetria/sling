@@ -18,11 +18,14 @@
  */
 package org.apache.sling.replication.serialization;
 
-import java.io.InputStream;
-
 /**
  * A {@link org.apache.sling.replication.serialization.ReplicationPackage} importer
  */
 public interface ReplicationPackageImporter {
+    /**
+     * Imports the given replication package
+     * @param replicationPackage - the package to be imported
+     * @return
+     */
     boolean importPackage(ReplicationPackage replicationPackage);
 }

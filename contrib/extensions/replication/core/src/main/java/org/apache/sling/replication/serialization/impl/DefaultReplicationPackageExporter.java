@@ -23,7 +23,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 
-@Component(label = "Default Replication Package Importer")
+@Component(label = "Default Replication Package Exporter")
 @Service(value = ReplicationPackageExporter.class)
 @Property(name = "name", value = DefaultReplicationPackageExporter.NAME)
 public class DefaultReplicationPackageExporter implements ReplicationPackageExporter {
