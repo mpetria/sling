@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.sling.replication.serialization.impl;
+package org.apache.sling.replication.serialization.impl.exporter;
 
 
 import org.apache.felix.scr.annotations.Activate;

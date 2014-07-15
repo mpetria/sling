@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.sling.replication.serialization.impl;
+package org.apache.sling.replication.serialization.impl.importer;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -32,7 +32,6 @@ import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilderProvider;
 import org.apache.sling.replication.serialization.ReplicationPackageImporter;
-import org.apache.sling.replication.serialization.ReplicationPackageReadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

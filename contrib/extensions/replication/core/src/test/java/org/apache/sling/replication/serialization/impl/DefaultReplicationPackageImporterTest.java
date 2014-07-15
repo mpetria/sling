@@ -28,6 +28,7 @@ import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilderProvider;
 import org.apache.sling.replication.serialization.SimpleReplicationPackage;
+import org.apache.sling.replication.serialization.impl.importer.DefaultReplicationPackageImporter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -35,11 +36,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.when;
 
 /**
- * Testcase for {@link org.apache.sling.replication.serialization.impl.DefaultReplicationPackageImporter}
+ * Testcase for {@link org.apache.sling.replication.serialization.impl.importer.DefaultReplicationPackageImporter}
  */
 public class DefaultReplicationPackageImporterTest {
 
