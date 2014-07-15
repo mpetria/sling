@@ -9,7 +9,8 @@
         "name={name}",
         "runModes={runModes}",
         "queueProvider={ReplicationQueueProvider.target}",
-        "packageBuilder={ReplicationPackageBuilder.target}",
+        "packageExporter={ReplicationPackageExporter.target}",
+        "packageImporter={ReplicationPackageImporter.target}",
         "queueStrategy={ReplicationQueueDistributionStrategy.target}",
         "transportHandler={TransportHandler.target}"
     ]

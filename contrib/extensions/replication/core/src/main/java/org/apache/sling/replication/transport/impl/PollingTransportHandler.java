@@ -31,6 +31,8 @@ import org.apache.sling.replication.communication.ReplicationHeader;
 import org.apache.sling.replication.queue.ReplicationQueueItem;
 import org.apache.sling.replication.queue.ReplicationQueueProcessor;
 import org.apache.sling.replication.serialization.ReplicationPackage;
+import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
+import org.apache.sling.replication.serialization.ReplicationPackageReadingException;
 import org.apache.sling.replication.transport.TransportHandler;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationContext;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationProvider;
@@ -50,14 +52,16 @@ public class PollingTransportHandler extends AbstractTransportHandler
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final TransportAuthenticationProvider<Executor, Executor> transportAuthenticationProvider;
+    private final ReplicationPackageBuilder packageBuilder;
     private final int pollItems;
 
     public PollingTransportHandler(int pollItems,
                                    TransportAuthenticationProvider<Executor, Executor> transportAuthenticationProvider,
-                                   ReplicationEndpoint[] replicationEndpoints){
+                                   ReplicationEndpoint[] replicationEndpoints, ReplicationPackageBuilder packageBuilder){
         super(replicationEndpoints, TransportEndpointStrategyType.All);
         this.pollItems = pollItems;
         this.transportAuthenticationProvider = transportAuthenticationProvider;
+        this.packageBuilder = packageBuilder;
     }
 
     @Override
@@ -113,13 +117,25 @@ public class PollingTransportHandler extends AbstractTransportHandler
         }
 
         HttpEntity entity = httpResponse.getEntity();
-        byte[] bytes = IOUtils.toByteArray(entity.getContent());
 
 
-        return new ReplicationQueueItem(pathList.toArray(new String[pathList.size()]),
-                actionHeader.getValue(),
-                typeHeader.getValue(),
-                bytes);
+
+         try {
+             ReplicationPackage replicationPackage = replicationPackage = packageBuilder.readPackage(entity.getContent(), false);
+             ReplicationQueueItem replicationQueueItem = new ReplicationQueueItem(replicationPackage.getId(),
+                     replicationPackage.getPaths(),
+                     replicationPackage.getAction(),
+                     replicationPackage.getType());
+
+             return replicationQueueItem;
+
+         } catch (ReplicationPackageReadingException e) {
+             log.error("Error reading package", e);
+         }
+
+
+
+         return null;
 
     }
 

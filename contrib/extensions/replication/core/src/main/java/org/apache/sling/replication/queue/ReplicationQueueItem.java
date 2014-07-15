@@ -45,10 +45,6 @@ public class ReplicationQueueItem {
         this(id, paths, action, type, null);
     }
 
-    public ReplicationQueueItem(String[] paths, String action, String type, byte[] bytes) {
-        this(null, paths, action, type, bytes);
-    }
-
     public String getId() {
         return id;
     }

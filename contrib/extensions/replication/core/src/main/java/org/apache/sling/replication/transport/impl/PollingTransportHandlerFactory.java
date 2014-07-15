@@ -28,9 +28,11 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.http.client.fluent.Executor;
 import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.replication.agent.ReplicationAgentConfiguration;
 import org.apache.sling.replication.communication.ReplicationEndpoint;
+import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.transport.TransportHandler;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationProvider;
 import org.apache.sling.replication.transport.authentication.TransportAuthenticationProviderFactory;
@@ -68,6 +70,11 @@ public class PollingTransportHandlerFactory extends AbstractTransportHandlerFact
     @Property(name = "poll items", description = "number of subsequent poll requests to make", intValue = -1)
     private static final String POLL_ITEMS = "poll.items";
 
+    @Property(name = ReplicationAgentConfiguration.PACKAGING, value = "(name=vlt)")
+    @Reference(name = "ReplicationPackageBuilder", target = "(name=vlt)", policy = ReferencePolicy.DYNAMIC)
+    private ReplicationPackageBuilder packageBuilder;
+
+
 
     @Override
     protected TransportHandler createTransportHandler(Map<String, ?> config,
@@ -80,8 +87,8 @@ public class PollingTransportHandlerFactory extends AbstractTransportHandlerFact
 
 
         return new PollingTransportHandler(pollItems,
-                transportAuthenticationProvider,
-                endpoints);
+                (TransportAuthenticationProvider<Executor, Executor>) transportAuthenticationProvider,
+                endpoints, packageBuilder);
     }
 
     @Override

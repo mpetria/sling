@@ -29,5 +29,11 @@ public interface ReplicationPackageExporter {
      * Exports a replication package.
      * @return the first available package in the exporter.
      */
-    ReplicationPackage exportPackage(ReplicationRequest replicationRequest);
+    ReplicationPackage exportPackage(ReplicationRequest replicationRequest) throws ReplicationPackageBuildingException;
+
+    /**
+     * Exports a replication package.
+     * @return the first available package in the exporter.
+     */
+    ReplicationPackage exportPackageById(String replicationPackageId);
 }

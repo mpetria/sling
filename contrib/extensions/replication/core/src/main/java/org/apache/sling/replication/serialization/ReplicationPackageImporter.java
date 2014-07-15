@@ -27,5 +27,5 @@ public interface ReplicationPackageImporter {
      * @param replicationPackage - the package to be imported
      * @return
      */
-    boolean importPackage(ReplicationPackage replicationPackage);
+    boolean importPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException;
 }

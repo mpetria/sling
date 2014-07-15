@@ -41,6 +41,8 @@ import org.apache.sling.replication.rule.ReplicationRuleEngine;
 import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuildingException;
+import org.apache.sling.replication.serialization.ReplicationPackageExporter;
+import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.apache.sling.replication.serialization.ReplicationPackageReadingException;
 import org.apache.sling.replication.transport.ReplicationTransportException;
 import org.apache.sling.replication.transport.TransportHandler;
@@ -57,11 +59,11 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final ReplicationPackageBuilder packageBuilder;
-
     private final ReplicationQueueProvider queueProvider;
 
     private final TransportHandler transportHandler;
+    private final ReplicationPackageImporter replicationPackageImporter;
+    private final ReplicationPackageExporter replicationPackageExporter;
 
     private final ReplicationQueueDistributionStrategy queueDistributionStrategy;
 
@@ -78,14 +80,16 @@ public class SimpleReplicationAgent implements ReplicationAgent {
     public SimpleReplicationAgent(String name, String[] rules,
                                   boolean useAggregatePaths,
                                   TransportHandler transportHandler,
-                                  ReplicationPackageBuilder packageBuilder,
+                                  ReplicationPackageImporter replicationPackageImporter,
+                                  ReplicationPackageExporter replicationPackageExporter,
                                   ReplicationQueueProvider queueProvider,
                                   ReplicationQueueDistributionStrategy queueDistributionHandler,
                                   ReplicationEventFactory replicationEventFactory, ReplicationRuleEngine ruleEngine) {
         this.name = name;
         this.rules = rules;
         this.transportHandler = transportHandler;
-        this.packageBuilder = packageBuilder;
+        this.replicationPackageImporter = replicationPackageImporter;
+        this.replicationPackageExporter = replicationPackageExporter;
         this.queueProvider = queueProvider;
         this.queueDistributionStrategy = queueDistributionHandler;
         this.useAggregatePaths = useAggregatePaths;
@@ -118,7 +122,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
         // create package from request
         ReplicationPackage replicationPackage;
         try {
-            replicationPackage = packageBuilder.createPackage(replicationRequest);
+            replicationPackage = replicationPackageExporter.exportPackage(replicationRequest);
         } catch (ReplicationPackageBuildingException e) {
             throw new AgentReplicationException(e);
         }
@@ -216,7 +220,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
             ReplicationQueueItem info = queue.getHead();
             if (info != null) {
                 queue.removeHead();
-                replicationPackage = packageBuilder.getPackage(info.getId());
+                replicationPackage = replicationPackageExporter.exportPackageById(info.getId());
             }
             return replicationPackage;
         } else {
@@ -268,7 +272,8 @@ public class SimpleReplicationAgent implements ReplicationAgent {
         InputStream stream = new ByteArrayInputStream(queueItem.getBytes());
         log.debug("reading package from stream {}", stream);
         try {
-            ReplicationPackage replicationPackage = packageBuilder.readPackage(stream, true);
+            ReplicationPackage replicationPackage = replicationPackageExporter.exportPackageById(queueItem.getId());
+            replicationPackageImporter.importPackage(replicationPackage);
             replicationPackage.delete();
             return true;
         } catch (ReplicationPackageReadingException e) {
@@ -278,7 +283,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
     private boolean processTransportQueue(ReplicationQueueItem queueItem) {
         try {
-            ReplicationPackage replicationPackage = packageBuilder.getPackage(queueItem.getId());
+            ReplicationPackage replicationPackage =  replicationPackageExporter.exportPackageById(queueItem.getId());
             if (replicationPackage == null) {
                 return false;
             }

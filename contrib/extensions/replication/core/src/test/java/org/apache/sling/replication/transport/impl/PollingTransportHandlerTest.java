@@ -48,7 +48,7 @@ public class PollingTransportHandlerTest {
 
         PollingTransportHandler pollingTransportHandler = new PollingTransportHandler( -1,
                 transportAuthenticationProvider,
-                new ReplicationEndpoint[] { replicationEndpoint });
+                new ReplicationEndpoint[] { replicationEndpoint }, null);
         ReplicationPackage replicationPackage = mock(ReplicationPackage.class);
         when(replicationPackage.getAction()).thenReturn(ReplicationActionType.ADD.toString());
         when(replicationPackage.getType()).thenReturn("test");

@@ -42,6 +42,8 @@ import org.apache.sling.replication.queue.impl.SingleQueueDistributionStrategy;
 import org.apache.sling.replication.queue.impl.jobhandling.JobHandlingReplicationQueueProvider;
 import org.apache.sling.replication.rule.ReplicationRuleEngine;
 import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
+import org.apache.sling.replication.serialization.ReplicationPackageExporter;
+import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.apache.sling.replication.serialization.impl.vlt.FileVaultReplicationPackageBuilder;
 import org.apache.sling.replication.transport.TransportHandler;
 import org.apache.sling.replication.transport.impl.NopTransportHandler;
@@ -105,9 +107,13 @@ public class ReplicationAgentServiceFactory {
     @Reference(name = "TransportHandler", target = "(name=" + NopTransportHandler.NAME + ")", policy = ReferencePolicy.DYNAMIC)
     private volatile TransportHandler transportHandler;
 
-    @Property(label = "Target ReplicationPackageBuilder", name = PACKAGING, value = DEFAULT_PACKAGING)
-    @Reference(name = "ReplicationPackageBuilder", target = DEFAULT_PACKAGING, policy = ReferencePolicy.DYNAMIC)
-    private volatile ReplicationPackageBuilder packageBuilder;
+    @Property(label = "Target ReplicationPackageExporter", name = "ReplicationPackageExporter.target", value = "(name=vlt)")
+    @Reference(name = "ReplicationPackageExporter", target = "(name=vlt)", policy = ReferencePolicy.DYNAMIC)
+    private ReplicationPackageExporter packageExporter;
+
+    @Property(label = "Target ReplicationPackageImporter", name = "ReplicationPackageImporter.target", value = "(name=default)")
+    @Reference(name = "ReplicationPackageImporter", target = "(name=default)", policy = ReferencePolicy.DYNAMIC)
+    private ReplicationPackageImporter packageImporter;
 
     @Property(label = "Target ReplicationQueueProvider", name = QUEUEPROVIDER, value = DEFAULT_QUEUEPROVIDER)
     @Reference(name = "ReplicationQueueProvider", target = DEFAULT_QUEUEPROVIDER, policy = ReferencePolicy.DYNAMIC)
@@ -169,18 +175,18 @@ public class ReplicationAgentServiceFactory {
             props.put(USE_AGGREGATE_PATHS, useAggregatePaths);
 
             // check configuration is valid
-            if (name == null || packageBuilder == null || queueProvider == null || queueDistributionStrategy == null) {
+            if (name == null || packageExporter == null || packageImporter == null || queueProvider == null || queueDistributionStrategy == null) {
                 throw new AgentConfigurationException("configuration for this agent is not valid");
             }
 
 
             if (log.isInfoEnabled()) {
-                log.info("bound services for {} :  {} - {} - {} - {} - {} - {}", new Object[]{name,
-                        transportHandler, packageBuilder, queueProvider, queueDistributionStrategy});
+                log.info("bound services for {} :  {} - {} - {} - {} - {} - {} - {}", new Object[]{name,
+                        transportHandler, packageImporter, packageExporter, queueProvider, queueDistributionStrategy});
             }
 
             ReplicationAgent agent = new SimpleReplicationAgent(name, rules, useAggregatePaths,
-                    transportHandler, packageBuilder, queueProvider, queueDistributionStrategy, replicationEventFactory, replicationRuleEngine);
+                    transportHandler, packageImporter, packageExporter, queueProvider, queueDistributionStrategy, replicationEventFactory, replicationRuleEngine);
 
 
             // only enable if instance runmodes match configured ones

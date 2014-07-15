@@ -18,67 +18,50 @@
  */
 package org.apache.sling.replication.serialization.impl.exporter;
 
-
-import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.replication.agent.ReplicationAgent;
 import org.apache.sling.replication.communication.ReplicationRequest;
+import org.apache.sling.replication.event.ReplicationEventFactory;
+import org.apache.sling.replication.event.ReplicationEventType;
 import org.apache.sling.replication.serialization.ReplicationPackage;
+import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
+import org.apache.sling.replication.serialization.ReplicationPackageBuilderProvider;
+import org.apache.sling.replication.serialization.ReplicationPackageBuildingException;
 import org.apache.sling.replication.serialization.ReplicationPackageExporter;
-import org.osgi.framework.BundleContext;
+import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
-@Component(label = "Agent Based Replication Package Exporter")
+/**
+ * Default implementation of {@link org.apache.sling.replication.serialization.ReplicationPackageExporter}
+ */
+@Component(label = "Default Replication Package Exporter")
 @Service(value = ReplicationPackageExporter.class)
-@Property(name = "name", value = AgentBasedReplicationPackageExporter.NAME)
-public class AgentBasedReplicationPackageExporter implements ReplicationPackageExporter {
+@Property(name = "name", value = DefaultReplicationPackageExporter.NAME)
+public class DefaultReplicationPackageExporter implements ReplicationPackageExporter {
+
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-
     @Property(label = "Name")
-    public static final String NAME = "reverserepo";
+    public static final String NAME = "vlt";
 
-    @Property(label = "Queue")
-    private static final String QUEUE_NAME = "queue";
+    @Reference(name = "ReplicationPackageBuilder", target = "(name=vlt)", policy = ReferencePolicy.STATIC)
+    private ReplicationPackageBuilder packageBuilder;
 
-    @Reference(name = "ReplicationAgent", target = "(name=reverserepo)", policy = ReferencePolicy.STATIC)
-    private ReplicationAgent agent;
-
-    private String queueName;
-
-
-
-    @Activate
-    public void activate(BundleContext context, Map<String, ?> config) throws Exception {
-        queueName = PropertiesUtil.toString(config.get(QUEUE_NAME), "");
-    }
-
-
-    public ReplicationPackage exportPackage(ReplicationRequest replicationRequest) {
-
-        try {
-            log.info("getting item from queue {}", queueName);
-
-            // get first item
-            ReplicationPackage head = agent.removeHead(queueName);
-            return head;
-        }
-        catch (Exception ex) {
-            log.error("Error exporting package", ex);
-        }
-
-        return null;
+    public ReplicationPackage exportPackage(ReplicationRequest replicationRequest) throws ReplicationPackageBuildingException{
+        return packageBuilder.createPackage(replicationRequest);
     }
 
     public ReplicationPackage exportPackageById(String replicationPackageId) {
-        return null;
+        return packageBuilder.getPackage(replicationPackageId);
     }
 }
