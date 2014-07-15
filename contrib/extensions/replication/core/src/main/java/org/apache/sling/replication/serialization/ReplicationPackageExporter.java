@@ -19,6 +19,8 @@
 package org.apache.sling.replication.serialization;
 
 
+import org.apache.sling.replication.communication.ReplicationRequest;
+
 /**
  * A {@link org.apache.sling.replication.serialization.ReplicationPackage) exporter
  */
@@ -27,5 +29,5 @@ public interface ReplicationPackageExporter {
      * Exports a replication package.
      * @return the first available package in the exporter.
      */
-    ReplicationPackage exportPackage();
+    ReplicationPackage exportPackage(ReplicationRequest replicationRequest);
 }

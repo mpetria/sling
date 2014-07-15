@@ -27,24 +27,19 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.replication.agent.ReplicationAgent;
-import org.apache.sling.replication.agent.ReplicationAgentConfiguration;
-import org.apache.sling.replication.communication.ReplicationParameter;
+import org.apache.sling.replication.communication.ReplicationRequest;
 import org.apache.sling.replication.serialization.ReplicationPackage;
-import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageExporter;
-import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Map;
 
-@Component(label = "Default Replication Package Exporter")
+@Component(label = "Agent Based Replication Package Exporter")
 @Service(value = ReplicationPackageExporter.class)
-@Property(name = "name", value = DefaultReplicationPackageExporter.NAME)
-public class DefaultReplicationPackageExporter implements ReplicationPackageExporter {
+@Property(name = "name", value = AgentBasedReplicationPackageExporter.NAME)
+public class AgentBasedReplicationPackageExporter implements ReplicationPackageExporter {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
 
@@ -67,10 +62,9 @@ public class DefaultReplicationPackageExporter implements ReplicationPackageExpo
     }
 
 
-    public ReplicationPackage exportPackage() {
+    public ReplicationPackage exportPackage(ReplicationRequest replicationRequest) {
 
         try {
-            // TODO : consider using queue distribution strategy and validating who's making this request
             log.info("getting item from queue {}", queueName);
 
             // get first item

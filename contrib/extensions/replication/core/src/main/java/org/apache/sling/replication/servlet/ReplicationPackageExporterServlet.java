@@ -71,7 +71,7 @@ public class ReplicationPackageExporterServlet extends SlingAllMethodsServlet {
 
         try {
             // get first item
-            ReplicationPackage replicationPackage = replicationPackageExporter.exportPackage();
+            ReplicationPackage replicationPackage = replicationPackageExporter.exportPackage(null);
 
             if (replicationPackage != null) {
                 InputStream inputStream = null;
