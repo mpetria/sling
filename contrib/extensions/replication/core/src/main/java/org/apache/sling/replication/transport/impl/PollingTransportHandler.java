@@ -121,7 +121,7 @@ public class PollingTransportHandler extends AbstractTransportHandler
 
 
          try {
-             ReplicationPackage replicationPackage = replicationPackage = packageBuilder.readPackage(entity.getContent(), false);
+             ReplicationPackage replicationPackage = packageBuilder.readPackage(entity.getContent());
              ReplicationQueueItem replicationQueueItem = new ReplicationQueueItem(replicationPackage.getId(),
                      replicationPackage.getPaths(),
                      replicationPackage.getAction(),

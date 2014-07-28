@@ -60,8 +60,7 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
     protected abstract ReplicationPackage createPackageForAdd(ReplicationRequest request)
             throws ReplicationPackageBuildingException;
 
-    public ReplicationPackage readPackage(InputStream stream,
-                                          boolean install) throws ReplicationPackageReadingException {
+    public ReplicationPackage readPackage(InputStream stream) throws ReplicationPackageReadingException {
         ReplicationPackage replicationPackage = null;
         if (!stream.markSupported()) {
             stream = new BufferedInputStream(stream);
@@ -83,7 +82,7 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
         }
         stream.mark(-1);
         if (replicationPackage == null) {
-            replicationPackage = readPackageForAdd(stream, install);
+            replicationPackage = readPackageForAdd(stream);
         }
         return replicationPackage;
     }
@@ -133,7 +132,7 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
 
     protected abstract Session getSession() throws RepositoryException;
 
-    protected abstract ReplicationPackage readPackageForAdd(InputStream stream, boolean install)
+    protected abstract ReplicationPackage readPackageForAdd(InputStream stream)
             throws ReplicationPackageReadingException;
 
 

@@ -34,10 +34,7 @@ import org.apache.jackrabbit.vault.fs.api.PathFilterSet;
 import org.apache.jackrabbit.vault.fs.config.DefaultMetaInf;
 import org.apache.jackrabbit.vault.fs.config.DefaultWorkspaceFilter;
 import org.apache.jackrabbit.vault.fs.io.ImportOptions;
-import org.apache.jackrabbit.vault.packaging.ExportOptions;
-import org.apache.jackrabbit.vault.packaging.JcrPackage;
-import org.apache.jackrabbit.vault.packaging.Packaging;
-import org.apache.jackrabbit.vault.packaging.VaultPackage;
+import org.apache.jackrabbit.vault.packaging.*;
 import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.apache.sling.replication.communication.ReplicationRequest;
@@ -138,7 +135,7 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
     }
 
     @Override
-    protected ReplicationPackage readPackageForAdd(final InputStream stream, boolean install)
+    protected ReplicationPackage readPackageForAdd(final InputStream stream)
             throws ReplicationPackageReadingException {
         if (log.isDebugEnabled()) {
             log.debug("reading a stream");
@@ -150,9 +147,7 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
             if (session != null) {
                 final JcrPackage jcrPackage = packaging.getPackageManager(session).upload(stream, true,
                         false);
-                if (install) {
-                    jcrPackage.install(new ImportOptions());
-                }
+
                 pkg = new FileVaultReplicationPackage(jcrPackage.getPackage());
             }
         } catch (Exception e) {
@@ -175,6 +170,10 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
                 VaultPackage pkg = packaging.getPackageManager().open(file);
                 replicationPackage = new FileVaultReplicationPackage(pkg);
             }
+            else {
+                VaultPackage pkg = packaging.getPackageManager(getSession()).open(PackageId.fromString(id)).getPackage();
+                replicationPackage = new FileVaultReplicationPackage(pkg);
+            }
         } catch (Exception e) {
             log.info("could not find a package with id : {}", id);
         }
@@ -189,4 +188,27 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
     }
 
 
+    public boolean installPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException{
+        log.debug("reading a stream");
+
+        Session session = null;
+        try {
+            session = getSession();
+            if (session != null) {
+                final JcrPackage jcrPackage =  packaging.getPackageManager(getSession())
+                        .open(PackageId.fromString(replicationPackage.getId()));
+
+                jcrPackage.install(new ImportOptions());
+
+            }
+        } catch (Exception e) {
+            log.error("could not read / install the package", e);
+            throw new ReplicationPackageReadingException(e);
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
+        }
+        return false;
+    }
 }

@@ -65,7 +65,7 @@ public class DefaultReplicationPackageImporterTest {
         ReplicationPackageBuilderProvider replicationPackageBuilderProvider = mock(ReplicationPackageBuilderProvider.class);
         ReplicationPackageBuilder packageBuilder = mock(ReplicationPackageBuilder.class);
         ReplicationPackage replicationPackage = mock(ReplicationPackage.class);
-        when(packageBuilder.readPackage(any(InputStream.class), eq(true))).thenReturn(replicationPackage);
+        when(packageBuilder.readPackage(any(InputStream.class))).thenReturn(replicationPackage);
         when(replicationPackageBuilderProvider.getReplicationPackageBuilder("void")).thenReturn(packageBuilder);
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
@@ -88,7 +88,7 @@ public class DefaultReplicationPackageImporterTest {
         ReplicationPackageBuilderProvider replicationPackageBuilderProvider = mock(ReplicationPackageBuilderProvider.class);
         ReplicationPackageBuilder packageBuilder = mock(ReplicationPackageBuilder.class);
         ReplicationPackage replicationPackage = new VoidReplicationPackage(new ReplicationRequest(System.currentTimeMillis(), ReplicationActionType.DELETE, "/content"), "void");
-        when(packageBuilder.readPackage(any(InputStream.class), eq(true))).thenReturn(replicationPackage);
+        when(packageBuilder.readPackage(any(InputStream.class))).thenReturn(replicationPackage);
         when(replicationPackageBuilderProvider.getReplicationPackageBuilder("void")).thenReturn(packageBuilder);
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
@@ -109,7 +109,7 @@ public class DefaultReplicationPackageImporterTest {
         ReplicationPackageBuilderProvider replicationPackageBuilderProvider = mock(ReplicationPackageBuilderProvider.class);
         ReplicationPackageBuilder packageBuilder = mock(ReplicationPackageBuilder.class);
         ReplicationPackage replicationPackage = new VoidReplicationPackage(new ReplicationRequest(System.currentTimeMillis(), ReplicationActionType.DELETE, "/content"), "void");
-        when(packageBuilder.readPackage(any(InputStream.class), eq(true))).thenReturn(replicationPackage);
+        when(packageBuilder.readPackage(any(InputStream.class))).thenReturn(replicationPackage);
         replicationPackageBuilderProviderField.set(importer, replicationPackageBuilderProvider);
 
         InputStream stream = mock(InputStream.class);

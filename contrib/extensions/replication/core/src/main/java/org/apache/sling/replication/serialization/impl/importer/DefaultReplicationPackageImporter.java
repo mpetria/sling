@@ -56,24 +56,19 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
 
     public boolean importPackage(ReplicationPackage replicationPackage) {
         boolean success = false;
-        InputStream packageStream = null;
         try {
-
-            packageStream = replicationPackage.createInputStream();
-
             ReplicationPackageBuilder replicationPackageBuilder =
                     replicationPackageBuilderProvider.getReplicationPackageBuilder(replicationPackage.getType());
 
-            ReplicationPackage installedPackage = replicationPackageBuilder.readPackage(packageStream, true);
+            success = replicationPackageBuilder.installPackage(replicationPackage);
 
-            if (installedPackage != null) {
+            if (success) {
                 log.info("replication package read and installed for path(s) {}", Arrays.toString(replicationPackage.getPaths()));
 
                 Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
                 dictionary.put("replication.action", replicationPackage.getAction());
                 dictionary.put("replication.path", replicationPackage.getPaths());
                 replicationEventFactory.generateEvent(ReplicationEventType.PACKAGE_INSTALLED, dictionary);
-                success = true;
 
                 replicationPackage.delete();
             } else {

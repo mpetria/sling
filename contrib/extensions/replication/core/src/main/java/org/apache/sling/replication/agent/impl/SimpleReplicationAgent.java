@@ -269,8 +269,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
     }
 
     private boolean processResponseQueue(ReplicationQueueItem queueItem) {
-        InputStream stream = new ByteArrayInputStream(queueItem.getBytes());
-        log.debug("reading package from stream {}", stream);
+        log.debug("reading package from id {}", queueItem.getId());
         try {
             ReplicationPackage replicationPackage = replicationPackageExporter.exportPackageById(queueItem.getId());
             replicationPackageImporter.importPackage(replicationPackage);
