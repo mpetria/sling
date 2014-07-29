@@ -28,10 +28,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.replication.event.ReplicationEventFactory;
 import org.apache.sling.replication.event.ReplicationEventType;
-import org.apache.sling.replication.serialization.ReplicationPackage;
-import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
-import org.apache.sling.replication.serialization.ReplicationPackageBuilderProvider;
-import org.apache.sling.replication.serialization.ReplicationPackageImporter;
+import org.apache.sling.replication.serialization.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +75,22 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
             log.error("cannot import a package from the given stream of type {}", replicationPackage.getType());
         }
         return success;
+    }
+
+    public ReplicationPackage readPackage(InputStream stream) throws ReplicationPackageReadingException {
+        try {
+            ReplicationPackageBuilder replicationPackageBuilder =
+                    replicationPackageBuilderProvider.getReplicationPackageBuilder("vlt");
+
+            ReplicationPackage replicationPackage = replicationPackageBuilder.readPackage(stream);
+
+            return replicationPackage;
+
+
+        } catch (Exception e) {
+            log.error("cannot read a package from the given stream");
+        }
+        return null;
     }
 
 }

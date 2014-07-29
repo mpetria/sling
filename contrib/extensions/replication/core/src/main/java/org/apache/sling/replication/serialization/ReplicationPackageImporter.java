@@ -18,6 +18,8 @@
  */
 package org.apache.sling.replication.serialization;
 
+import java.io.InputStream;
+
 /**
  * A {@link org.apache.sling.replication.serialization.ReplicationPackage} importer
  */
@@ -28,4 +30,7 @@ public interface ReplicationPackageImporter {
      * @return
      */
     boolean importPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException;
+
+    ReplicationPackage readPackage(InputStream stream) throws ReplicationPackageReadingException;
+
 }

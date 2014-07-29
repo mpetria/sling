@@ -33,7 +33,6 @@ import org.apache.sling.replication.communication.ReplicationHeader;
 import org.apache.sling.replication.resources.ReplicationConstants;
 import org.apache.sling.replication.serialization.ReplicationPackage;
 import org.apache.sling.replication.serialization.ReplicationPackageImporter;
-import org.apache.sling.replication.serialization.SimpleReplicationPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +63,8 @@ public class ReplicationPackageImporterServlet extends SlingAllMethodsServlet {
         response.setCharacterEncoding("utf-8");
 
         InputStream stream = request.getInputStream();
-        String type = request.getHeader(ReplicationHeader.TYPE.toString());
         try {
-            ReplicationPackage replicationPackage = new SimpleReplicationPackage(null, null, type, stream);
+            ReplicationPackage replicationPackage = replicationPackageImporter.readPackage(stream);
             success = replicationPackageImporter.importPackage(replicationPackage);
         } catch (final Exception e) {
             response.setStatus(400);
