@@ -18,8 +18,6 @@
  */
 package org.apache.sling.replication.agent.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
@@ -39,14 +37,10 @@ import org.apache.sling.replication.queue.ReplicationQueueProcessor;
 import org.apache.sling.replication.queue.ReplicationQueueProvider;
 import org.apache.sling.replication.rule.ReplicationRuleEngine;
 import org.apache.sling.replication.serialization.ReplicationPackage;
-import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageBuildingException;
 import org.apache.sling.replication.serialization.ReplicationPackageExporter;
 import org.apache.sling.replication.serialization.ReplicationPackageImporter;
 import org.apache.sling.replication.serialization.ReplicationPackageReadingException;
-import org.apache.sling.replication.transport.ReplicationTransportException;
-import org.apache.sling.replication.transport.TransportHandler;
-import org.apache.sling.replication.transport.impl.NopTransportHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

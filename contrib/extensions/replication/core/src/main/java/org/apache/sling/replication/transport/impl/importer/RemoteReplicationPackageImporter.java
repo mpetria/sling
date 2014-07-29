@@ -57,7 +57,7 @@ public class RemoteReplicationPackageImporter implements ReplicationPackageImpor
     public boolean importPackage(ReplicationPackage replicationPackage) {
         boolean success = true;
         try {
-            transportHandler.transport("", replicationPackage);
+            transportHandler.transport(replicationPackage);
 
             if (success) {
                 log.info("replication package read and installed for path(s) {}", Arrays.toString(replicationPackage.getPaths()));
