@@ -71,25 +71,16 @@ public class ReplicationAgentServiceFactory {
 
     static final String SERVICE_PID = "org.apache.sling.replication.agent.impl.ReplicationAgentServiceFactory";
 
-    private static final String TRANSPORT = ReplicationAgentConfiguration.TRANSPORT;
-
     private static final String QUEUEPROVIDER = ReplicationAgentConfiguration.QUEUEPROVIDER;
-
-    private static final String PACKAGING = ReplicationAgentConfiguration.PACKAGING;
 
     private static final String QUEUE_DISTRIBUTION = ReplicationAgentConfiguration.QUEUE_DISTRIBUTION;
 
-    private static final String DEFAULT_PACKAGING = "(name="
-            + FileVaultReplicationPackageBuilder.NAME + ")";
 
     private static final String DEFAULT_QUEUEPROVIDER = "(name="
             + JobHandlingReplicationQueueProvider.NAME + ")";
 
     private static final String DEFAULT_DISTRIBUTION = "(name="
             + SingleQueueDistributionStrategy.NAME + ")";
-
-    private static final String DEFAULT_TRANSPORT = "(name="
-            + NopTransportHandler.NAME + ")";
 
     @Property(boolValue = true, label = "Enabled")
     private static final String ENABLED = ReplicationAgentConfiguration.ENABLED;
@@ -151,11 +142,6 @@ public class ReplicationAgentServiceFactory {
                     .toString(config.get(NAME), String.valueOf(new Random().nextInt(1000)));
             props.put(NAME, name);
 
-            String transport = PropertiesUtil.toString(config.get(TRANSPORT), "");
-            props.put(TRANSPORT, transport);
-
-            String packaging = PropertiesUtil.toString(config.get(PACKAGING), "");
-            props.put(PACKAGING, packaging);
 
             String queue = PropertiesUtil.toString(config.get(QUEUEPROVIDER), "");
             props.put(QUEUEPROVIDER, queue);

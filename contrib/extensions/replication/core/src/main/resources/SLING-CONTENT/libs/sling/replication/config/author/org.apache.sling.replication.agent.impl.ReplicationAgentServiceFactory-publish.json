@@ -1,7 +1,7 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
     "name" : "publish",
-    "ReplicationPackageExporter.target" : "(name=vlt)",
+    "ReplicationPackageExporter.target" : "(name=default)",
     "ReplicationPackageImporter.target" : "(name=remote)",
     "ReplicationQueueProvider.target" : "(name=sjh)",
     "ReplicationQueueDistributionStrategy.target" : "(name=single)",

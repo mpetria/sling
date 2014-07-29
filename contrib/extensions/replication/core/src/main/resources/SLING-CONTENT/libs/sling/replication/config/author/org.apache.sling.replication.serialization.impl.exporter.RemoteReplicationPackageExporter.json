@@ -1,8 +1,7 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
-    "name" : "http-publish-poll",
-    "poll.items" : 10,
     "TransportAuthenticationProviderFactory.target" : "(name=user)",
     "authentication.properties" : ["user=admin","password=admin"],
-    "endpoints" : [ "http://localhost:4503/libs/sling/replication/exporters/reverserepo" ]
+    "ReplicationPackageBuilder.target" : "(name=vlt)",
+    "endpoints" : [ "http://localhost:4503/libs/sling/replication/exporters/agent" ]
 }

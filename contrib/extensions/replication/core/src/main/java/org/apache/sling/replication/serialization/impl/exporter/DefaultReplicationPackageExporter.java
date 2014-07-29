@@ -52,7 +52,7 @@ public class DefaultReplicationPackageExporter implements ReplicationPackageExpo
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Property(label = "Name")
-    public static final String NAME = "vlt";
+    public static final String NAME = "default";
 
     @Reference(name = "ReplicationPackageBuilder", target = "(name=vlt)", policy = ReferencePolicy.STATIC)
     private ReplicationPackageBuilder packageBuilder;

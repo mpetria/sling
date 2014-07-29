@@ -38,13 +38,13 @@ import java.util.Map;
 
 @Component(label = "Agent Based Replication Package Exporter")
 @Service(value = ReplicationPackageExporter.class)
-@Property(name = "name", value = AgentBasedReplicationPackageExporter.NAME)
-public class AgentBasedReplicationPackageExporter implements ReplicationPackageExporter {
+@Property(name = "name", value = AgentReplicationPackageExporter.NAME)
+public class AgentReplicationPackageExporter implements ReplicationPackageExporter {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
 
     @Property(label = "Name")
-    public static final String NAME = "reverserepo";
+    public static final String NAME = "agent";
 
     @Property(label = "Queue")
     private static final String QUEUE_NAME = "queue";
