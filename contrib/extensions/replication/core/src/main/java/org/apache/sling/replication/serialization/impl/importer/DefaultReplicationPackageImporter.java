@@ -22,13 +22,12 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
+
+import org.apache.felix.scr.annotations.*;
 import org.apache.sling.replication.event.ReplicationEventFactory;
 import org.apache.sling.replication.event.ReplicationEventType;
 import org.apache.sling.replication.serialization.*;
+import org.apache.sling.replication.serialization.impl.vlt.FileVaultReplicationPackageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +43,10 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Reference
-    private ReplicationPackageBuilderProvider replicationPackageBuilderProvider;
+    @Reference(name = "ReplicationPackageBuilder",
+            target = "(name=" + FileVaultReplicationPackageBuilder.NAME + ")",
+            policy = ReferencePolicy.DYNAMIC)
+    private ReplicationPackageBuilder replicationPackageBuilder;
 
     @Reference
     private ReplicationEventFactory replicationEventFactory;
@@ -54,9 +55,6 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
     public boolean importPackage(ReplicationPackage replicationPackage) {
         boolean success = false;
         try {
-            ReplicationPackageBuilder replicationPackageBuilder =
-                    replicationPackageBuilderProvider.getReplicationPackageBuilder(replicationPackage.getType());
-
             success = replicationPackageBuilder.installPackage(replicationPackage);
 
             if (success) {
@@ -79,9 +77,6 @@ public class DefaultReplicationPackageImporter implements ReplicationPackageImpo
 
     public ReplicationPackage readPackage(InputStream stream) throws ReplicationPackageReadingException {
         try {
-            ReplicationPackageBuilder replicationPackageBuilder =
-                    replicationPackageBuilderProvider.getReplicationPackageBuilder("vlt");
-
             ReplicationPackage replicationPackage = replicationPackageBuilder.readPackage(stream);
 
             return replicationPackage;
