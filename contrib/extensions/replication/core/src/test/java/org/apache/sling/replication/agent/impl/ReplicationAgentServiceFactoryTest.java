@@ -65,11 +65,6 @@ public class ReplicationAgentServiceFactoryTest {
         ReplicationQueueProvider queueProvider = mock(ReplicationQueueProvider.class);
         queueField.set(serviceFactory, queueProvider);
 
-        Field transportField = serviceFactory.getClass().getDeclaredField("transportHandler");
-        transportField.setAccessible(true);
-        TransportHandler transportHandler = mock(TransportHandler.class);
-        transportField.set(serviceFactory, transportHandler);
-
 
         Map<String, Object> dictionary = new HashMap<String, Object>();
         dictionary.put("endpoint", "http://somewhere.com");

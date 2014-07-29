@@ -55,13 +55,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleReplicationAgent implements ReplicationAgent {
 
-    private final static String RESPONSE_QUEUE = "response";
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ReplicationQueueProvider queueProvider;
 
-    private final TransportHandler transportHandler;
+    private final boolean passive;
     private final ReplicationPackageImporter replicationPackageImporter;
     private final ReplicationPackageExporter replicationPackageExporter;
 
@@ -79,7 +77,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
     public SimpleReplicationAgent(String name, String[] rules,
                                   boolean useAggregatePaths,
-                                  TransportHandler transportHandler,
+                                  boolean passive,
                                   ReplicationPackageImporter replicationPackageImporter,
                                   ReplicationPackageExporter replicationPackageExporter,
                                   ReplicationQueueProvider queueProvider,
@@ -87,7 +85,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
                                   ReplicationEventFactory replicationEventFactory, ReplicationRuleEngine ruleEngine) {
         this.name = name;
         this.rules = rules;
-        this.transportHandler = transportHandler;
+        this.passive = passive;
         this.replicationPackageImporter = replicationPackageImporter;
         this.replicationPackageExporter = replicationPackageExporter;
         this.queueProvider = queueProvider;
@@ -114,7 +112,7 @@ public class SimpleReplicationAgent implements ReplicationAgent {
     }
 
     public boolean isPassive() {
-        return transportHandler == null || transportHandler instanceof NopTransportHandler; // TODO : improve this
+        return passive;
     }
 
 
@@ -252,7 +250,6 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
         if (!isPassive()) {
             queueProvider.enableQueueProcessing(getName(), new PackageQueueProcessor());
-            transportHandler.enableProcessing(getName(), new ResponseProcessor());
         }
     }
 
@@ -264,11 +261,10 @@ public class SimpleReplicationAgent implements ReplicationAgent {
 
         if (!isPassive()) {
             queueProvider.disableQueueProcessing(getName());
-            transportHandler.disableProcessing(getName());
         }
     }
 
-    private boolean processResponseQueue(ReplicationQueueItem queueItem) {
+    private boolean processTransportQueue(ReplicationQueueItem queueItem) {
         log.debug("reading package from id {}", queueItem.getId());
         try {
             ReplicationPackage replicationPackage = replicationPackageExporter.exportPackageById(queueItem.getId());
@@ -280,46 +276,11 @@ public class SimpleReplicationAgent implements ReplicationAgent {
         }
     }
 
-    private boolean processTransportQueue(ReplicationQueueItem queueItem) {
-        try {
-            ReplicationPackage replicationPackage =  replicationPackageExporter.exportPackageById(queueItem.getId());
-            if (replicationPackage == null) {
-                return false;
-            }
-            if (transportHandler != null) {
-                transportHandler.transport(getName(), replicationPackage);
-                replicationPackage.delete();
-                return true;
-            } else {
-                log.info("agent {} processing skipped", name);
-                return false;
-            }
-        } catch (ReplicationTransportException e) {
-            log.error("transport error", e);
-            return false;
-        }
-    }
-
     class PackageQueueProcessor implements ReplicationQueueProcessor {
         public boolean process(String queueName, ReplicationQueueItem packageInfo) {
             log.info("running package queue processor");
-            if (RESPONSE_QUEUE.equalsIgnoreCase(queueName)) {
-                return processResponseQueue(packageInfo);
-            } else {
-                return processTransportQueue(packageInfo);
-            }
+
+            return processTransportQueue(packageInfo);
         }
     }
-
-    class ResponseProcessor implements ReplicationQueueProcessor {
-        public boolean process(String queueName, ReplicationQueueItem queueItem) {
-            log.info("running response processor");
-            try {
-                return getQueue(RESPONSE_QUEUE).add(queueItem);
-            } catch (Exception e) {
-                return false;
-            }
-        }
-    }
-
 }

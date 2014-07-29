@@ -103,10 +103,6 @@ public class ReplicationAgentServiceFactory {
     @Property(boolValue = true, label = "Replicate using aggregated paths")
     private static final String USE_AGGREGATE_PATHS = ReplicationAgentConfiguration.USE_AGGREGATE_PATHS;
 
-    @Property(label = "Target TransportHandler", name = TRANSPORT, value = "(name=" + NopTransportHandler.NAME + ")")
-    @Reference(name = "TransportHandler", target = "(name=" + NopTransportHandler.NAME + ")", policy = ReferencePolicy.DYNAMIC)
-    private volatile TransportHandler transportHandler;
-
     @Property(label = "Target ReplicationPackageExporter", name = "ReplicationPackageExporter.target", value = "(name=vlt)")
     @Reference(name = "ReplicationPackageExporter", target = "(name=vlt)", policy = ReferencePolicy.DYNAMIC)
     private ReplicationPackageExporter packageExporter;
@@ -174,6 +170,9 @@ public class ReplicationAgentServiceFactory {
             boolean useAggregatePaths = PropertiesUtil.toBoolean(config.get(USE_AGGREGATE_PATHS), true);
             props.put(USE_AGGREGATE_PATHS, useAggregatePaths);
 
+            boolean isPassive = PropertiesUtil.toBoolean(config.get("isPassive"), false);
+            props.put(USE_AGGREGATE_PATHS, useAggregatePaths);
+
             // check configuration is valid
             if (name == null || packageExporter == null || packageImporter == null || queueProvider == null || queueDistributionStrategy == null) {
                 throw new AgentConfigurationException("configuration for this agent is not valid");
@@ -181,12 +180,12 @@ public class ReplicationAgentServiceFactory {
 
 
             if (log.isInfoEnabled()) {
-                log.info("bound services for {} :  {} - {} - {} - {} - {} - {} - {}", new Object[]{name,
-                        transportHandler, packageImporter, packageExporter, queueProvider, queueDistributionStrategy});
+                log.info("bound services for {} :  {} - {} - {} - {} - {} - {}", new Object[]{name,
+                        packageImporter, packageExporter, queueProvider, queueDistributionStrategy});
             }
 
-            ReplicationAgent agent = new SimpleReplicationAgent(name, rules, useAggregatePaths,
-                    transportHandler, packageImporter, packageExporter, queueProvider, queueDistributionStrategy, replicationEventFactory, replicationRuleEngine);
+            ReplicationAgent agent = new SimpleReplicationAgent(name, rules, useAggregatePaths, isPassive,
+                    packageImporter, packageExporter, queueProvider, queueDistributionStrategy, replicationEventFactory, replicationRuleEngine);
 
 
             // only enable if instance runmodes match configured ones
