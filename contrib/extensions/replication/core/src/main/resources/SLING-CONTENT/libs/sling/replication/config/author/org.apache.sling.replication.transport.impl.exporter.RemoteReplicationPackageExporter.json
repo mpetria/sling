@@ -5,5 +5,4 @@
     "ReplicationPackageBuilder.target" : "(name=vlt)",
     "endpoints" : [ "http://localhost:4503/libs/sling/replication/exporters/agent" ],
     "runModes" : ["author"]
-
 }

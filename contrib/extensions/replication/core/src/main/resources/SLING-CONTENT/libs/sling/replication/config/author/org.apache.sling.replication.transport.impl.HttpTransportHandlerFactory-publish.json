@@ -1,7 +1,8 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
-    "name" : "http-publish-receive",
+    "name" : "publish",
     "TransportAuthenticationProviderFactory.target" : "(name=user)",
     "authentication.properties" : ["user=admin","password=admin"],
-    "endpoints" : [ "http://localhost:4503/libs/sling/replication/importers/default" ]
+    "endpoints" : [ "http://localhost:4503/libs/sling/replication/importers/default" ],
+    "runModes" : ["author"]
 }

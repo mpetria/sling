@@ -29,6 +29,7 @@ import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.replication.agent.ReplicationAgent;
 import org.apache.sling.replication.communication.ReplicationRequest;
 import org.apache.sling.replication.serialization.ReplicationPackage;
+import org.apache.sling.replication.serialization.ReplicationPackageBuilder;
 import org.apache.sling.replication.serialization.ReplicationPackageExporter;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -42,15 +43,19 @@ import java.util.Map;
 public class AgentReplicationPackageExporter implements ReplicationPackageExporter {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-
-    @Property(label = "Name")
     public static final String NAME = "agent";
 
     @Property(label = "Queue")
     private static final String QUEUE_NAME = "queue";
 
-    @Reference(name = "ReplicationAgent", target = "(name=reverserepo)", policy = ReferencePolicy.STATIC)
+    @Property(label = "Target ReplicationAgent", name = "ReplicationAgent.target", value = "(name=reverse)")
+    @Reference(name = "ReplicationAgent", target = "(name=reverse)", policy = ReferencePolicy.STATIC)
     private ReplicationAgent agent;
+
+    @Property(label = "Target ReplicationPackageBuilder", name = "ReplicationPackageBuilder.target", value = "(name=vlt)")
+    @Reference(name = "ReplicationPackageBuilder", target = "(name=vlt)", policy = ReferencePolicy.STATIC)
+    private ReplicationPackageBuilder replicationPackageBuilder;
+
 
     private String queueName;
 

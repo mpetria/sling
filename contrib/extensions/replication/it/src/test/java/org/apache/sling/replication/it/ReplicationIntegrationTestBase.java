@@ -52,7 +52,7 @@ public abstract class ReplicationIntegrationTestBase {
 
             String receiverUrl = "http://localhost:4503/libs/sling/replication/importers/default"
                     .replace("http://localhost:4503", publish.getServerBaseUrl());
-            authorClient.setProperties("/libs/sling/replication/config/transport/http/http-publish-receive",
+            authorClient.setProperties("/libs/sling/replication/config/transport/http/publish",
                     "endpoints", receiverUrl);
             assertExists(authorClient, "/libs/sling/replication/agents/publish");
         }
