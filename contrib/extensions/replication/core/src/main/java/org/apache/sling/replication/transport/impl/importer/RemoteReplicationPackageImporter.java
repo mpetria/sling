@@ -45,9 +45,8 @@ public class RemoteReplicationPackageImporter implements ReplicationPackageImpor
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Reference(name = "TransportHandler",
-            target = "(name=http-publish-receive)",
-            policy = ReferencePolicy.DYNAMIC)
+    @Property(label = "Target TransportHandler", name = "TransportHandler.target", value = "(name=publish)")
+    @Reference(name = "TransportHandler", target = "(name=publish)", policy = ReferencePolicy.DYNAMIC)
     private TransportHandler transportHandler;
 
     @Reference

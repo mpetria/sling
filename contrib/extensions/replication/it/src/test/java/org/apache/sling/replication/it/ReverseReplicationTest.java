@@ -13,7 +13,7 @@ public class ReverseReplicationTest extends ReplicationIntegrationTestBase {
     public void testAddContent() throws Exception {
         String nodePath = createRandomNode(publishClient, "/content");
         assertExists(publishClient, nodePath);
-        replicate(publish, "reverserepo", ReplicationActionType.ADD, nodePath);
+        replicate(publish, "reverse", ReplicationActionType.ADD, nodePath);
 
         assertExists(authorClient, nodePath);
     }
