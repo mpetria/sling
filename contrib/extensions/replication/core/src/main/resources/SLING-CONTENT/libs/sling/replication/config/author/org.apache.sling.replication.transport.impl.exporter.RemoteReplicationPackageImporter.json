@@ -1,5 +1,0 @@
-{
-    "jcr:primaryType" : "sling:OsgiConfig",
-    "TransportHandler.target" : "(name=publish)",
-    "runModes" : ["author"]
-}
