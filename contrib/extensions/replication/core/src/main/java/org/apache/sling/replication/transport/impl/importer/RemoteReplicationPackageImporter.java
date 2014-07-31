@@ -55,20 +55,17 @@ import java.util.Map;
 /**
  * Default implementation of {@link org.apache.sling.replication.serialization.ReplicationPackageImporter}
  */
-@Component(label = "Remote Replication Package Importer")
+@Component(label = "Remote Replication Package Importer", configurationFactory = true)
 @Service(value = ReplicationPackageImporter.class)
-@Property(name = "name", value = RemoteReplicationPackageImporter.NAME)
 public class RemoteReplicationPackageImporter implements ReplicationPackageImporter {
-
-    public static final String NAME = "remote";
-    private static final String DEFAULT_AUTHENTICATION_FACTORY = "(name=" + UserCredentialsTransportAuthenticationProviderFactory.TYPE + ")";
-
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Property
+    private static final String NAME = "name";
 
-    @Property(name = ReplicationAgentConfiguration.TRANSPORT_AUTHENTICATION_FACTORY, value = DEFAULT_AUTHENTICATION_FACTORY)
-    @Reference(name = "TransportAuthenticationProviderFactory", target = DEFAULT_AUTHENTICATION_FACTORY, policy = ReferencePolicy.DYNAMIC)
+    @Property(name = ReplicationAgentConfiguration.TRANSPORT_AUTHENTICATION_FACTORY)
+    @Reference(name = "TransportAuthenticationProviderFactory", policy = ReferencePolicy.DYNAMIC)
     private TransportAuthenticationProviderFactory transportAuthenticationProviderFactory;
 
     @Reference

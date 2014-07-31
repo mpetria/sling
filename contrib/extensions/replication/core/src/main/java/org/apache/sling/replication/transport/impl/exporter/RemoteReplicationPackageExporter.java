@@ -43,25 +43,21 @@ import java.util.Map;
 /**
  * Default implementation of {@link org.apache.sling.replication.serialization.ReplicationPackageExporter}
  */
-@Component(label = "Remote Replication Package Exporter")
+@Component(label = "Remote Replication Package Exporter", configurationFactory = true)
 @Service(value = ReplicationPackageExporter.class)
-@Property(name = "name", value = RemoteReplicationPackageExporter.NAME)
 public class RemoteReplicationPackageExporter implements ReplicationPackageExporter {
-
-    public static final String NAME = "remote";
-    private static final String DEFAULT_AUTHENTICATION_FACTORY = "(name=" + UserCredentialsTransportAuthenticationProviderFactory.TYPE + ")";
-
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Property
+    private static final String NAME = "name";
 
-    @Property(name = ReplicationAgentConfiguration.TRANSPORT_AUTHENTICATION_FACTORY, value = DEFAULT_AUTHENTICATION_FACTORY)
-    @Reference(name = "TransportAuthenticationProviderFactory", target = DEFAULT_AUTHENTICATION_FACTORY, policy = ReferencePolicy.DYNAMIC)
+    @Property(name = ReplicationAgentConfiguration.TRANSPORT_AUTHENTICATION_FACTORY)
+    @Reference(name = "TransportAuthenticationProviderFactory", policy = ReferencePolicy.DYNAMIC)
     private TransportAuthenticationProviderFactory transportAuthenticationProviderFactory;
 
 
-    @Property(label = "Target ReplicationPackageBuilder", name = "ReplicationPackageBuilder.target", value = "(name=vlt)")
-    @Reference(name = "ReplicationPackageBuilder", target = "(name=vlt)", policy = ReferencePolicy.STATIC)
+    @Property(label = "Target ReplicationPackageBuilder", name = "ReplicationPackageBuilder.target")
+    @Reference(name = "ReplicationPackageBuilder", policy = ReferencePolicy.STATIC)
     private ReplicationPackageBuilder packageBuilder;
 
     TransportAuthenticationProvider<Executor, Executor>  transportAuthenticationProvider;

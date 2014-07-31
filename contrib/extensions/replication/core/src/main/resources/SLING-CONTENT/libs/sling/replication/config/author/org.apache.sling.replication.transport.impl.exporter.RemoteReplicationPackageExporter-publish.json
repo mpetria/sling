@@ -1,5 +1,6 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
+    "name": "publish",
     "TransportAuthenticationProviderFactory.target" : "(name=user)",
     "authentication.properties" : ["user=admin","password=admin"],
     "ReplicationPackageBuilder.target" : "(name=vlt)",

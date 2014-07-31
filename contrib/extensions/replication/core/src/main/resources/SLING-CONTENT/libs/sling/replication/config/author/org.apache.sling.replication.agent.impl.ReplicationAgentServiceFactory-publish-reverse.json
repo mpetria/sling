@@ -1,7 +1,7 @@
 {
     "jcr:primaryType" : "sling:OsgiConfig",
     "name" : "publish-reverse",
-    "ReplicationPackageExporter.target" : "(name=remote)",
+    "ReplicationPackageExporter.target" : "(name=publish)",
     "ReplicationPackageImporter.target" : "(name=default)",
     "ReplicationQueueProvider.target" : "(name=sjh)",
     "ReplicationQueueDistributionStrategy.target" : "(name=error)",
