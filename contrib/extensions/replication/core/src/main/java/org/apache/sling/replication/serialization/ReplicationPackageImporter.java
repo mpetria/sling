@@ -31,6 +31,14 @@ public interface ReplicationPackageImporter {
      */
     boolean importPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException;
 
+    /**
+     * reads a stream and tries to convert it to a {@link ReplicationPackage} this provider can read and install
+     *
+     * @param stream  the {@link InputStream} of the package to read
+     * @return a {@link ReplicationPackage} if it can read it from the stream
+     * @throws ReplicationPackageReadingException
+     *          when the stream cannot be read as a {@link ReplicationPackage}
+     */
     ReplicationPackage readPackage(InputStream stream) throws ReplicationPackageReadingException;
 
 }
