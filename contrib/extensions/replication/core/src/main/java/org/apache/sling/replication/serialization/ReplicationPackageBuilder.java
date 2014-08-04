@@ -54,6 +54,12 @@ public interface ReplicationPackageBuilder {
      */
     ReplicationPackage getPackage(String id);
 
+    /**
+     * Installs the given replicationPackage into the repository
+     * @param replicationPackage
+     * @return
+     * @throws ReplicationPackageReadingException
+     */
     boolean installPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException;
 
 }

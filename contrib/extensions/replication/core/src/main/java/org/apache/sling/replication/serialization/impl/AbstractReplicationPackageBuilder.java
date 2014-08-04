@@ -71,28 +71,35 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
             int bytesRead = stream.read(buffer, 0, 6);
             stream.reset();
             String s = new String(buffer, "UTF-8");
-            if (log.isInfoEnabled()) {
-                log.info("read {} bytes as {}", bytesRead, s);
-            }
+            log.info("read {} bytes as {}", bytesRead, s);
+
             if (bytesRead > 0 && buffer[0] > 0 && s.startsWith("DEL")) {
-                replicationPackage = readPackageForDelete(stream);
+                replicationPackage = VoidReplicationPackage.fromStream(stream);
             }
         } catch (Exception e) {
             log.warn("cannot parse stream", e);
         }
         stream.mark(-1);
         if (replicationPackage == null) {
-            replicationPackage = readPackageForAdd(stream);
+            replicationPackage = readPackageInternal(stream);
         }
         return replicationPackage;
     }
 
-    private ReplicationPackage readPackageForDelete(InputStream stream) throws ReplicationPackageReadingException {
-        ReplicationPackage replicationPackage = null;
+
+    public boolean installPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException {
+        ReplicationActionType actionType = ReplicationActionType.fromName(replicationPackage.getAction());
+        if (ReplicationActionType.DELETE.equals(actionType)) {
+            return installDeletePackage(replicationPackage);
+        }
+
+        return installPackageInternal(replicationPackage);
+
+    }
+
+    private boolean installDeletePackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException {
         Session session = null;
         try {
-            replicationPackage = VoidReplicationPackage.fromStream(stream);
-
             if(replicationPackage != null){
                 session = getSession();
                 for (String path : replicationPackage.getPaths()) {
@@ -101,6 +108,7 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
                     }
                 }
                 session.save();
+                return true;
             }
         } catch (Exception e) {
             throw new ReplicationPackageReadingException(e);
@@ -110,7 +118,7 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
             }
         }
 
-        return replicationPackage;
+        return false;
     }
 
     public ReplicationPackage getPackage(String id) {
@@ -132,9 +140,12 @@ public abstract class AbstractReplicationPackageBuilder implements ReplicationPa
 
     protected abstract Session getSession() throws RepositoryException;
 
-    protected abstract ReplicationPackage readPackageForAdd(InputStream stream)
+    protected abstract ReplicationPackage readPackageInternal(InputStream stream)
             throws ReplicationPackageReadingException;
 
+
+    protected abstract boolean installPackageInternal(ReplicationPackage replicationPackage)
+            throws ReplicationPackageReadingException;
 
     protected abstract ReplicationPackage getPackageInternal(String id);
 

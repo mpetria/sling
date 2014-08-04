@@ -135,7 +135,7 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
     }
 
     @Override
-    protected ReplicationPackage readPackageForAdd(final InputStream stream)
+    protected ReplicationPackage readPackageInternal(final InputStream stream)
             throws ReplicationPackageReadingException {
         if (log.isDebugEnabled()) {
             log.debug("reading a stream");
@@ -160,6 +160,7 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
         }
         return pkg;
     }
+
 
     @Override
     protected ReplicationPackage getPackageInternal(String id) {
@@ -188,7 +189,8 @@ public class FileVaultReplicationPackageBuilder extends AbstractReplicationPacka
     }
 
 
-    public boolean installPackage(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException{
+    @Override
+    public boolean installPackageInternal(ReplicationPackage replicationPackage) throws ReplicationPackageReadingException{
         log.debug("reading a stream");
 
         Session session = null;
