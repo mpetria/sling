@@ -18,11 +18,13 @@
  */
 package org.apache.sling.serviceusermapping.impl;
 
+import org.apache.sling.serviceusermapping.ServiceUserMapping;
+
 /**
  * The <code>Mapping</code> class defines the mapping of a service's name and
  * optional service information to a user name.
  */
-class Mapping {
+class Mapping implements ServiceUserMapping {
 
     private final String serviceName;
 
@@ -92,5 +94,9 @@ class Mapping {
     public String toString() {
         return "Mapping [serviceName=" + serviceName + ", subServiceName="
                 + subServiceName + ", userName=" + userName + "]";
+    }
+
+    public String getSubServiceName() {
+        return subServiceName;
     }
 }

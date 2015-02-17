@@ -18,6 +18,7 @@
  */
 package org.apache.sling.serviceusermapping.impl;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -26,9 +27,13 @@ import junit.framework.TestCase;
 
 import org.apache.sling.commons.testing.osgi.MockBundle;
 import org.apache.sling.serviceusermapping.ServiceUserValidator;
+import org.apache.sling.commons.testing.osgi.MockBundleContext;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 public class ServiceUserMapperImplTest {
     private static final String BUNDLE_SYMBOLIC1 = "bundle1";
@@ -64,6 +69,7 @@ public class ServiceUserMapperImplTest {
         };
     };
 
+
     private static final Bundle BUNDLE2 = new MockBundle(10) {
         @Override
         public String getSymbolicName() {
@@ -75,6 +81,7 @@ public class ServiceUserMapperImplTest {
             return getHeaders();
         };
     };
+
 
     @Test
     public void test_getServiceUserID() {
@@ -92,7 +99,7 @@ public class ServiceUserMapperImplTest {
         };
 
         final ServiceUserMapperImpl sum = new ServiceUserMapperImpl();
-        sum.configure(config);
+        sum.configure(getContext(), config);
 
         TestCase.assertEquals(SAMPLE, sum.getServiceUserID(BUNDLE1, null));
         TestCase.assertEquals(ANOTHER, sum.getServiceUserID(BUNDLE2, null));
@@ -118,7 +125,7 @@ public class ServiceUserMapperImplTest {
         };
 
         final ServiceUserMapperImpl sum = new ServiceUserMapperImpl();
-        sum.configure(config);
+        sum.configure(getContext(), config);
         ServiceUserValidator serviceUserValidator = new ServiceUserValidator() {
             
             public boolean isValid(String serviceUserId, String serviceName,
@@ -153,7 +160,7 @@ public class ServiceUserMapperImplTest {
         };
 
         final ServiceUserMapperImpl sum = new ServiceUserMapperImpl();
-        sum.configure(config);
+        sum.configure(getContext(), config);
         final MappingConfigAmendment mca1 = new MappingConfigAmendment();
         @SuppressWarnings("serial")
         final Map<String, Object> mca1Config = new HashMap<String, Object>() {
@@ -195,7 +202,7 @@ public class ServiceUserMapperImplTest {
         };
 
         final ServiceUserMapperImpl sum = new ServiceUserMapperImpl();
-        sum.configure(config);
+        sum.configure(getContext(), config);
 
         final MappingConfigAmendment mca1 = new MappingConfigAmendment();
         @SuppressWarnings("serial")
@@ -220,5 +227,27 @@ public class ServiceUserMapperImplTest {
         sum.bindAmendment(mca2, mca2Config);
 
         TestCase.assertEquals(ANOTHER_SUB, sum.getServiceUserID(BUNDLE2, ""));
+    }
+
+
+    private BundleContext getContext() {
+        return new MockBundleContext(null) {
+            @Override
+            public ServiceRegistration registerService(String string, Object o, Dictionary dictionary) {
+                return new ServiceRegistration() {
+                    public ServiceReference getReference() {
+                        return null;
+                    }
+
+                    public void setProperties(Dictionary dictionary) {
+
+                    }
+
+                    public void unregister() {
+
+                    }
+                };
+            }
+        };
     }
 }

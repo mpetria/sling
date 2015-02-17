@@ -20,7 +20,9 @@ package org.apache.sling.serviceusermapping.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -38,8 +40,11 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.commons.osgi.PropertiesUtil;
 import org.apache.sling.serviceusermapping.ServiceUserMapper;
 import org.apache.sling.serviceusermapping.ServiceUserValidator;
+import org.apache.sling.serviceusermapping.ServiceUserMapping;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +100,14 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
 
     private Vector <ServiceUserValidator> validators = new Vector<ServiceUserValidator>();
 
+    private Map<Mapping, ServiceRegistration> activeMappingRegistrations = new HashMap<Mapping, ServiceRegistration>();
+
+    private BundleContext bundleContext;
+
     @Activate
     @Modified
-    void configure(final Map<String, Object> config) {
+    void configure(BundleContext bundleContext, final Map<String, Object> config) {
+        this.bundleContext = bundleContext;
         final String[] props = PropertiesUtil.toStringArray(config.get(PROP_SERVICE2USER_MAPPING),
             PROP_SERVICE2USER_MAPPING_DEFAULT);
 
@@ -185,7 +195,21 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
                 mappings.add(m);
             }
         }
+
+        for (Map.Entry<Mapping, ServiceRegistration> registrationEntry : activeMappingRegistrations.entrySet()) {
+            registrationEntry.getValue().unregister();
+        }
+
+        activeMappingRegistrations.clear();
+
         activeMappings = mappings.toArray(new Mapping[mappings.size()]);
+
+        for(Mapping mapping: activeMappings) {
+            Dictionary<String, Object> properties = new Hashtable<String, Object>();
+            properties.put("subServiceName", mapping.getSubServiceName());
+            ServiceRegistration registration = bundleContext.registerService(ServiceUserMapping.class.toString(), mapping, properties);
+            activeMappingRegistrations.put(mapping, registration);
+        }
     }
 
     private String internalGetUserId(String serviceName, String subServiceName) {
