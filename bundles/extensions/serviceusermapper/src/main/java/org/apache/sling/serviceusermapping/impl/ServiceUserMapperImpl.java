@@ -196,17 +196,30 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
             }
         }
 
+
+        unregisterMappings();
+
+        activeMappings = mappings.toArray(new Mapping[mappings.size()]);
+
+        registerMappings();
+
+    }
+
+    void unregisterMappings() {
+
         for (Map.Entry<Mapping, ServiceRegistration> registrationEntry : activeMappingRegistrations.entrySet()) {
             registrationEntry.getValue().unregister();
         }
 
         activeMappingRegistrations.clear();
+    }
 
-        activeMappings = mappings.toArray(new Mapping[mappings.size()]);
+    void registerMappings() {
 
         for(Mapping mapping: activeMappings) {
             Dictionary<String, Object> properties = new Hashtable<String, Object>();
-            properties.put("subServiceName", mapping.getSubServiceName());
+            properties.put("subServiceName", mapping.getSubServiceName() == null ? "" : mapping.getSubServiceName());
+            properties.put("serviceName", mapping.getServiceName());
             ServiceRegistration registration = bundleContext.registerService(ServiceUserMapping.class.toString(), mapping, properties);
             activeMappingRegistrations.put(mapping, registration);
         }

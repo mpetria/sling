@@ -96,6 +96,10 @@ class Mapping implements ServiceUserMapping {
                 + subServiceName + ", userName=" + userName + "]";
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
     public String getSubServiceName() {
         return subServiceName;
     }
