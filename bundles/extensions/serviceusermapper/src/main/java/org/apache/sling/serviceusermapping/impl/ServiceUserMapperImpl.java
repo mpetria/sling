@@ -197,15 +197,15 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
         }
 
 
-        unregisterMappings();
+        unregisterServiceMappings();
 
         activeMappings = mappings.toArray(new Mapping[mappings.size()]);
 
-        registerMappings();
+        registerServiceMappings();
 
     }
 
-    void unregisterMappings() {
+    void unregisterServiceMappings() {
 
         for (Map.Entry<Mapping, ServiceRegistration> registrationEntry : activeMappingRegistrations.entrySet()) {
             registrationEntry.getValue().unregister();
@@ -214,13 +214,17 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
         activeMappingRegistrations.clear();
     }
 
-    void registerMappings() {
+    void registerServiceMappings() {
+
+        if (bundleContext == null) {
+            return;
+        }
 
         for(Mapping mapping: activeMappings) {
             Dictionary<String, Object> properties = new Hashtable<String, Object>();
-            properties.put("subServiceName", mapping.getSubServiceName() == null ? "" : mapping.getSubServiceName());
-            properties.put("serviceName", mapping.getServiceName());
-            ServiceRegistration registration = bundleContext.registerService(ServiceUserMapping.class.toString(), mapping, properties);
+            properties.put(ServiceUserMapping.SUBSERVICENAME, mapping.getSubServiceName() == null ? "" : mapping.getSubServiceName());
+            properties.put(ServiceUserMapping.SERVICENAME, mapping.getServiceName());
+            ServiceRegistration registration = bundleContext.registerService(ServiceUserMapping.class.getName(), mapping, properties);
             activeMappingRegistrations.put(mapping, registration);
         }
     }
