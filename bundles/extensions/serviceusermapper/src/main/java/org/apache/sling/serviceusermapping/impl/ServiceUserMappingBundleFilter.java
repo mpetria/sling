@@ -22,11 +22,13 @@ package org.apache.sling.serviceusermapping.impl;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.serviceusermapping.ServiceUserMapping;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.hooks.service.EventListenerHook;
+import org.osgi.framework.hooks.service.FindHook;
 import org.osgi.framework.hooks.service.ListenerHook;
 
 import java.util.Collection;
@@ -34,11 +36,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 @Component
-@Service(EventListenerHook.class)
+@Service(value = {EventListenerHook.class, FindHook.class} )
 /**
  * The <code>ServiceUserMappingBundleFilter</code> only allows the bundle for which the service mapping is available to see it.
  */
-public class ServiceUserMappingBundleFilter implements EventListenerHook {
+public class ServiceUserMappingBundleFilter implements EventListenerHook, FindHook {
 
     public void event(ServiceEvent serviceEvent, Map map) {
 
@@ -60,6 +62,23 @@ public class ServiceUserMappingBundleFilter implements EventListenerHook {
         }
     }
 
+    public void find(BundleContext bundleContext, String name, String filter, boolean allServices,
+                     Collection references) {
+        String bundleName = bundleContext.getBundle().getSymbolicName();
+
+        Iterator<ServiceReference> it = references.iterator();
+        while (it.hasNext()) {
+            ServiceReference serviceReference = it.next();
+            if (isServiceMappingReference(serviceReference)) {
+                Object serviceName = serviceReference.getProperty(ServiceUserMapping.SERVICENAME);
+
+                if (serviceName != null && !serviceName.equals(bundleName)) {
+                    it.remove();
+                }
+            }
+        }
+    }
+
     private static boolean isServiceMappingReference(ServiceReference serviceReference) {
         Object objectClass = serviceReference.getProperty(Constants.OBJECTCLASS);
         for (Object o :  (Object[]) objectClass) {
@@ -69,4 +88,7 @@ public class ServiceUserMappingBundleFilter implements EventListenerHook {
         }
         return false;
     }
+
+
+
 }
