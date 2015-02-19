@@ -1,5 +1,7 @@
 package org.apache.sling.serviceusermapping;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * The <code>ServiceUserMapping</code> service can be used to retrieve an already registered service user mapping.
  * A service reference targeting a service user mapping will be satisfied only when <code>ServiceUserMapper.getServiceUserID</code>
@@ -8,6 +10,7 @@ package org.apache.sling.serviceusermapping;
  * ensures that your component only starts when the subService is available. Trying to reference a sub service from a bundle
  * for which it was not registered for will not work.
  */
+@ProviderType
 public interface ServiceUserMapping {
 
     /**
