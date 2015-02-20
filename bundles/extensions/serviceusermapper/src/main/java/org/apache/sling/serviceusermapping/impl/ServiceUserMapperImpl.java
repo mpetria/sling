@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
@@ -113,7 +114,6 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
     @Activate
     @Modified
     void configure(BundleContext bundleContext, final Map<String, Object> config) {
-        this.bundleContext = bundleContext;
         final String[] props = PropertiesUtil.toStringArray(config.get(PROP_SERVICE2USER_MAPPING),
             PROP_SERVICE2USER_MAPPING_DEFAULT);
 
@@ -132,7 +132,16 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
         this.globalServiceUserMappings = mappings.toArray(new Mapping[mappings.size()]);
         this.defaultUser = PropertiesUtil.toString(config.get(PROP_DEFAULT_USER), PROP_DEFAULT_USER_DEFAULT);
         synchronized ( this.amendments ) {
+            this.bundleContext = bundleContext;
             this.updateMappings();
+        }
+    }
+
+    @Deactivate
+    void deactivate() {
+        synchronized ( this.amendments) {
+            updateServiceMappings(new ArrayList<Mapping>());
+            bundleContext = null;
         }
     }
     
@@ -205,12 +214,17 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
 
         activeMappings = mappings.toArray(new Mapping[mappings.size()]);
 
-        registerServiceMappings(mappings);
+        updateServiceMappings(mappings);
 
     }
 
 
-    void registerServiceMappings(List<Mapping> newMappings) {
+    void updateServiceMappings(List<Mapping> newMappings) {
+        
+        // do not do anything if not activated
+        if (bundleContext == null) {
+            return;
+        }
 
         SortedSet<Mapping> orderedActiveMappings = new TreeSet<Mapping>(newMappings);
 
@@ -225,9 +239,6 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
             }
         }
 
-        if (bundleContext == null) {
-            return;
-        }
 
         for (Mapping mapping: orderedActiveMappings) {
             if (!activeMappingRegistrations.containsKey(mapping)) {
