@@ -26,13 +26,16 @@ import junit.framework.TestCase;
 
 import org.apache.sling.serviceusermapping.ServiceUserMapping;
 import org.apache.sling.serviceusermapping.ServiceUserValidator;
-import org.apache.sling.commons.testing.osgi.MockBundleContext;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -231,10 +234,10 @@ public class ServiceUserMapperImplTest {
         };
 
         final ServiceUserMapperImpl sum = new ServiceUserMapperImpl();
-        final ServiceRegistrationContext bundleContext = new ServiceRegistrationContext();
-        sum.configure(bundleContext, config);
+        final ServiceRegistrationContextHelper context = new ServiceRegistrationContextHelper();
+        sum.configure(context.getBundleContext(), config);
 
-        TestCase.assertEquals(2, bundleContext.getRegistrations(ServiceUserMapping.class.getName()).size());
+        TestCase.assertEquals(2, context.getRegistrations(ServiceUserMapping.class.getName()).size());
 
         final MappingConfigAmendment mca1 = new MappingConfigAmendment();
         @SuppressWarnings("serial")
@@ -248,7 +251,7 @@ public class ServiceUserMapperImplTest {
         mca1.configure(mca1Config);
         sum.bindAmendment(mca1, mca1Config);
 
-        TestCase.assertEquals(3, bundleContext.getRegistrations(ServiceUserMapping.class.getName()).size());
+        TestCase.assertEquals(3, context.getRegistrations(ServiceUserMapping.class.getName()).size());
 
         final MappingConfigAmendment mca2 = new MappingConfigAmendment();
         @SuppressWarnings("serial")
@@ -262,24 +265,32 @@ public class ServiceUserMapperImplTest {
         mca2.configure(mca2Config);
         sum.bindAmendment(mca2, mca2Config);
 
-        TestCase.assertEquals(4, bundleContext.getRegistrations(ServiceUserMapping.class.getName()).size());
+        TestCase.assertEquals(4, context.getRegistrations(ServiceUserMapping.class.getName()).size());
 
         sum.unbindAmendment(mca1, mca1Config);
 
-        TestCase.assertEquals(3, bundleContext.getRegistrations(ServiceUserMapping.class.getName()).size());
+        TestCase.assertEquals(3, context.getRegistrations(ServiceUserMapping.class.getName()).size());
     }
 
 
-    private class ServiceRegistrationContext extends MockBundleContext {
+    private class ServiceRegistrationContextHelper {
 
+
+        final BundleContext bundleContext = mock(BundleContext.class);
         final Map<String, Map<Object, Dictionary>> registrations = new HashMap<String, Map<Object, Dictionary>>();
 
-        public ServiceRegistrationContext() {
-            super(null);
+        public ServiceRegistrationContextHelper() {
+            when(bundleContext.registerService(any(String.class), any(Object.class), any(Dictionary.class)))
+                    .then(new Answer<ServiceRegistration>() {
+                        public ServiceRegistration answer(InvocationOnMock invocationOnMock) throws Throwable {
+
+                            Object[] arguments = invocationOnMock.getArguments();
+                            return registerService((String) arguments[0], arguments[1], (Dictionary) arguments[2]);
+                        }
+                    });
         }
 
-        @Override
-        public ServiceRegistration registerService(String string, Object o, Dictionary dictionary) {
+        private ServiceRegistration registerService(String string, Object o, Dictionary dictionary) {
             if (!registrations.containsKey(string)) {
                 registrations.put(string, new HashMap<Object, Dictionary>());
             }
@@ -306,6 +317,10 @@ public class ServiceUserMapperImplTest {
 
         public Map<Object, Dictionary> getRegistrations(String name) {
             return registrations.get(name);
+        }
+
+        public BundleContext getBundleContext() {
+            return bundleContext;
         }
 
     }
