@@ -20,21 +20,21 @@ package org.apache.sling.serviceusermapping.impl;
 
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.sling.commons.testing.osgi.MockBundle;
 import org.apache.sling.serviceusermapping.ServiceUserMapping;
 import org.apache.sling.serviceusermapping.ServiceUserValidator;
 import org.apache.sling.commons.testing.osgi.MockBundleContext;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServiceUserMapperImplTest {
     private static final String BUNDLE_SYMBOLIC1 = "bundle1";
@@ -53,35 +53,20 @@ public class ServiceUserMapperImplTest {
 
     private static final String ANOTHER_SUB = "another_sub";
 
-    private static final Bundle BUNDLE1 = new MockBundle(10) {
-        @Override
-        public String getSymbolicName() {
-            return BUNDLE_SYMBOLIC1;
-        };
+    private static final Bundle BUNDLE1;
 
-        @Override
-        public java.util.Dictionary<?, ?> getHeaders() {
-            return new Hashtable<String, Object>();
-        };
-
-        @Override
-        public java.util.Dictionary<?, ?> getHeaders(String locale) {
-            return getHeaders();
-        };
-    };
+    private static final Bundle BUNDLE2;
 
 
-    private static final Bundle BUNDLE2 = new MockBundle(10) {
-        @Override
-        public String getSymbolicName() {
-            return BUNDLE_SYMBOLIC2;
-        };
+    static {
+        BUNDLE1 = mock(Bundle.class);
+        when(BUNDLE1.getSymbolicName()).thenReturn(BUNDLE_SYMBOLIC1);
 
-        @Override
-        public java.util.Dictionary<?, ?> getHeaders(String locale) {
-            return getHeaders();
-        };
-    };
+        BUNDLE2 = mock(Bundle.class);
+        when(BUNDLE2.getSymbolicName()).thenReturn(BUNDLE_SYMBOLIC2);
+    }
+
+
 
 
     @Test
@@ -286,8 +271,6 @@ public class ServiceUserMapperImplTest {
 
 
     private class ServiceRegistrationContext extends MockBundleContext {
-
-
 
         final Map<String, Map<Object, Dictionary>> registrations = new HashMap<String, Map<Object, Dictionary>>();
 
