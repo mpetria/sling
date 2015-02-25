@@ -46,7 +46,7 @@ public class ServiceUserMappingBundleFilter implements EventListenerHook, FindHo
 
         ServiceReference serviceReference = serviceEvent.getServiceReference();
         if (isServiceMappingReference(serviceReference)) {
-            Object serviceName = serviceReference.getProperty(ServiceUserMapping.SERVICENAME);
+            Object serviceName = serviceReference.getProperty(Mapping.SERVICENAME);
 
             if (serviceName != null && serviceName instanceof String) {
                 Iterator<Map.Entry<BundleContext, Collection<ListenerHook.ListenerInfo>>> it = map.entrySet().iterator();
@@ -70,7 +70,7 @@ public class ServiceUserMappingBundleFilter implements EventListenerHook, FindHo
         while (it.hasNext()) {
             ServiceReference serviceReference = it.next();
             if (isServiceMappingReference(serviceReference)) {
-                Object serviceName = serviceReference.getProperty(ServiceUserMapping.SERVICENAME);
+                Object serviceName = serviceReference.getProperty(Mapping.SERVICENAME);
 
                 if (serviceName != null && !serviceName.equals(bundleName)) {
                     it.remove();

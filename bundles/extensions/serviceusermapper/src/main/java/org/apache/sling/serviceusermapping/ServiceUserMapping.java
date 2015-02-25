@@ -13,24 +13,12 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ServiceUserMapping {
 
-    /**
-     * The name of the osgi property holding the service name.
-     */
-    static String SERVICENAME = "serviceName";
-
 
     /**
      * The name of the osgi property holding the sub service name.
      */
     static String SUBSERVICENAME = "subServiceName";
 
-
-    /**
-     * Returns the service name for this mapping.
-     *
-     * @return The service name for this mapping.
-     */
-    String getServiceName();
 
     /**
      * Returns the sub service name for this mapping.

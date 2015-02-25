@@ -27,6 +27,11 @@ import org.apache.sling.serviceusermapping.ServiceUserMapping;
 class Mapping implements ServiceUserMapping, Comparable<Mapping> {
 
 
+    /**
+     * The name of the osgi property holding the service name.
+     */
+    static String SERVICENAME = "serviceName";
+
     private final String serviceName;
 
     private final String subServiceName;
