@@ -243,7 +243,10 @@ public class ServiceUserMapperImpl implements ServiceUserMapper {
         for (Mapping mapping: orderedActiveMappings) {
             if (!activeMappingRegistrations.containsKey(mapping)) {
                 Dictionary<String, Object> properties = new Hashtable<String, Object>();
-                properties.put(ServiceUserMapping.SUBSERVICENAME, mapping.getSubServiceName() == null ? "" : mapping.getSubServiceName());
+                if (mapping.getSubServiceName() != null) {
+                    properties.put(ServiceUserMapping.SUBSERVICENAME, mapping.getSubServiceName());
+                }
+
                 properties.put(Mapping.SERVICENAME, mapping.getServiceName());
                 ServiceRegistration registration = bundleContext.registerService(ServiceUserMapping.class.getName(), mapping, properties);
                 activeMappingRegistrations.put(mapping, registration);
