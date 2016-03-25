@@ -42,8 +42,7 @@ import org.apache.sling.distribution.packaging.impl.importer.RemoteDistributionP
 import org.apache.sling.distribution.queue.DistributionQueueProvider;
 import org.apache.sling.distribution.queue.impl.DistributionQueueDispatchingStrategy;
 import org.apache.sling.distribution.serialization.DistributionPackageBuilder;
-import org.apache.sling.distribution.serialization.impl.DefaultDistributionPackageBuilderFactory;
-import org.apache.sling.distribution.serialization.impl.vlt.FileVaultContentSerializerFactory;
+import org.apache.sling.distribution.serialization.impl.vlt.VaultDistributionPackageBuilderFactory;
 import org.apache.sling.distribution.transport.DistributionTransportSecretProvider;
 import org.apache.sling.distribution.transport.impl.UserCredentialsDistributionTransportSecretProvider;
 import org.apache.sling.distribution.trigger.DistributionTrigger;
@@ -66,7 +65,6 @@ public enum DistributionComponentKind {
     TRANSPORT_SECRET_PROVIDER("transportSecretProvider"),
     PACKAGE_BUILDER("packageBuilder"),
     REQUEST_AUTHORIZATION("requestAuthorization"),
-    SERIALIZATION_FORMAT("serializationFormat"),
     TRIGGER("trigger");
 
 
@@ -99,9 +97,8 @@ public enum DistributionComponentKind {
         registerFactory(DistributionComponentKind.IMPORTER, "local", LocalDistributionPackageImporterFactory.class);
         registerFactory(DistributionComponentKind.IMPORTER, "remote", RemoteDistributionPackageImporterFactory.class);
 
-        registerFactory(DistributionComponentKind.PACKAGE_BUILDER, "default", DefaultDistributionPackageBuilderFactory.class);
-
-        registerFactory(DistributionComponentKind.SERIALIZATION_FORMAT, "filevault", FileVaultContentSerializerFactory.class);
+        registerFactory(DistributionComponentKind.PACKAGE_BUILDER, "filevlt", VaultDistributionPackageBuilderFactory.class);
+        registerFactory(DistributionComponentKind.PACKAGE_BUILDER, "jcrvlt", VaultDistributionPackageBuilderFactory.class);
 
         registerFactory(DistributionComponentKind.REQUEST_AUTHORIZATION, "privilege", PrivilegeDistributionRequestAuthorizationStrategy.class);
 

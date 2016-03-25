@@ -39,10 +39,12 @@ import org.apache.sling.distribution.DistributionRequest;
 import org.apache.sling.distribution.common.DistributionException;
 import org.apache.sling.distribution.component.impl.DistributionComponentConstants;
 import org.apache.sling.distribution.component.impl.SettingsUtils;
+import org.apache.sling.distribution.serialization.DistributionContentSerializer;
 import org.apache.sling.distribution.serialization.DistributionPackage;
 import org.apache.sling.distribution.serialization.DistributionPackageBuilder;
-import org.apache.sling.distribution.serialization.impl.DefaultDistributionPackageBuilder;
 import org.apache.sling.distribution.serialization.impl.DistributionPackagePersistenceType;
+import org.apache.sling.distribution.serialization.impl.FileDistributionPackageBuilder;
+import org.apache.sling.distribution.serialization.impl.ResourceDistributionPackageBuilder;
 
 /**
  * A package builder for Apache Jackrabbit FileVault based implementations.
@@ -130,7 +132,6 @@ public class VaultDistributionPackageBuilderFactory implements DistributionPacka
         String[] packageRoots = SettingsUtils.removeEmptyEntries(PropertiesUtil.toStringArray(config.get(PACKAGE_ROOTS), null));
         String[] packageFilters = SettingsUtils.removeEmptyEntries(PropertiesUtil.toStringArray(config.get(PACKAGE_FILTERS), null));
 
-        // TODO : use this
         String tempFsFolder = SettingsUtils.removeEmptyEntry(PropertiesUtil.toString(config.get(TEMP_FS_FOLDER), null));
         boolean useBinaryReferences = PropertiesUtil.toBoolean(config.get(USE_BINARY_REFERENCES), false);
         
@@ -144,12 +145,12 @@ public class VaultDistributionPackageBuilderFactory implements DistributionPacka
             aclHandling = AccessControlHandling.valueOf(aclHandlingString.trim());
         }
 
-        FileVaultContentSerializer format = new FileVaultContentSerializer(type, packaging, importMode, aclHandling, packageRoots, packageFilters, useBinaryReferences);
+        DistributionContentSerializer contentSerializer = new FileVaultContentSerializer(name, packaging, importMode, aclHandling, packageRoots, packageFilters, useBinaryReferences);
 
         if ("filevlt".equals(type)) {
-            packageBuilder = new DefaultDistributionPackageBuilder(DistributionPackagePersistenceType.FILE, format);
+            packageBuilder = new FileDistributionPackageBuilder(name, contentSerializer, tempFsFolder);
         } else {
-            packageBuilder = new DefaultDistributionPackageBuilder(DistributionPackagePersistenceType.RESOURCE, format);
+            packageBuilder = new ResourceDistributionPackageBuilder(name, contentSerializer, tempFsFolder);
         }
     }
 

@@ -52,7 +52,7 @@ import org.apache.sling.distribution.serialization.DistributionContentSerializer
 )
 @Service(DistributionPackageBuilder.class)
 @Property(name = "webconsole.configurationFactory.nameHint", value = "Builder name: {name}")
-public class DefaultDistributionPackageBuilderFactory implements DistributionPackageBuilder {
+public class DistributionPackageBuilderFactory implements DistributionPackageBuilder {
 
     /**
      * name of this package builder.
@@ -76,7 +76,14 @@ public class DefaultDistributionPackageBuilderFactory implements DistributionPac
     @Property(name = "format.target", label = "Serialization Format", description = "The target reference for the DistributionSerializationFormat used to (de)serialize packages, " +
             "e.g. use target=(name=...) to bind to services by name.", value = SettingsUtils.COMPONENT_NAME_DEFAULT)
     @Reference(name = "format")
-    private DistributionContentSerializer format;
+    private DistributionContentSerializer contentSerializer;
+
+
+    /**
+     * Temp file folder
+     */
+    @Property(label = "Temp Filesystem Folder", description = "The filesystem folder where the temporary files should be saved.")
+    private static final String TEMP_FS_FOLDER = "tempFsFolder";
 
     private DistributionPackageBuilder packageBuilder;
 
@@ -84,11 +91,14 @@ public class DefaultDistributionPackageBuilderFactory implements DistributionPac
     public void activate(Map<String, Object> config) {
 
         DistributionPackagePersistenceType persistenceType = DistributionPackagePersistenceType.valueOf(PropertiesUtil.toString(config.get(NAME), null));
+        String tempFsFolder = SettingsUtils.removeEmptyEntry(PropertiesUtil.toString(config.get(TEMP_FS_FOLDER), null));
 
 
-
-
-        packageBuilder = new DefaultDistributionPackageBuilder(persistenceType, format);
+        if (DistributionPackagePersistenceType.FILE.equals(persistenceType)) {
+            packageBuilder = new FileDistributionPackageBuilder(contentSerializer.getName(), contentSerializer, tempFsFolder);
+        } else {
+            packageBuilder = new ResourceDistributionPackageBuilder(contentSerializer.getName(), contentSerializer, tempFsFolder);
+        }
 
 
     }

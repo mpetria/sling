@@ -19,11 +19,14 @@
 package org.apache.sling.distribution.serialization.impl;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.sling.distribution.DistributionRequestType;
 import org.apache.sling.distribution.serialization.DistributionPackage;
 import org.apache.sling.distribution.serialization.DistributionPackageInfo;
 
@@ -40,6 +43,9 @@ public class FileDistributionPackage implements DistributionPackage {
         this.info = new DistributionPackageInfo(type);
         this.file = file;
         this.type = type;
+
+        this.getInfo().put(DistributionPackageInfo.PROPERTY_REQUEST_TYPE, DistributionRequestType.ADD);
+        //this.getInfo().put(DistributionPackageInfo.PROPERTY_REQUEST_PATHS, paths);
     }
 
     @Nonnull
@@ -54,7 +60,7 @@ public class FileDistributionPackage implements DistributionPackage {
 
     @Nonnull
     public InputStream createInputStream() throws IOException {
-        return new FileInputStream(file);
+        return new PackageInputStream(file);
     }
 
     @Override
@@ -74,6 +80,26 @@ public class FileDistributionPackage implements DistributionPackage {
     @Override
     public DistributionPackageInfo getInfo() {
         return info;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+
+    public class PackageInputStream extends BufferedInputStream {
+        private final File file;
+
+        public PackageInputStream(File file) throws IOException {
+            super(FileUtils.openInputStream(file));
+
+            this.file = file;
+        }
+
+
+        public File getFile() {
+            return file;
+        }
     }
 
 }

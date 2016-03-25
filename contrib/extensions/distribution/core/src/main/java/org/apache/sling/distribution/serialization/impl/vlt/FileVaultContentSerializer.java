@@ -20,23 +20,30 @@ package org.apache.sling.distribution.serialization.impl.vlt;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.vault.fs.api.ImportMode;
 import org.apache.jackrabbit.vault.fs.api.WorkspaceFilter;
 import org.apache.jackrabbit.vault.fs.io.AccessControlHandling;
 import org.apache.jackrabbit.vault.fs.io.ImportOptions;
 import org.apache.jackrabbit.vault.packaging.ExportOptions;
-import org.apache.jackrabbit.vault.packaging.JcrPackage;
+import org.apache.jackrabbit.vault.packaging.PackageManager;
 import org.apache.jackrabbit.vault.packaging.Packaging;
+import org.apache.jackrabbit.vault.packaging.VaultPackage;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.distribution.DistributionRequest;
 import org.apache.sling.distribution.common.DistributionException;
 import org.apache.sling.distribution.serialization.DistributionContentSerializer;
+import org.apache.sling.distribution.serialization.impl.FileDistributionPackage;
 import org.apache.sling.distribution.util.DistributionJcrUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,20 +101,43 @@ public class FileVaultContentSerializer implements DistributionContentSerializer
     }
 
     @Override
-    public void importFromStream(ResourceResolver resourceResolver, InputStream stream) throws DistributionException {
+    public void importFromStream(ResourceResolver resourceResolver, InputStream inputStream) throws DistributionException {
 
         Session session = null;
+        OutputStream outputStream = null;
+        File file = null;
+        boolean isTmp = true;
         try {
             session = getSession(resourceResolver);
-
-            JcrPackage jcrPackage = packaging.getPackageManager(session).upload(stream, true);
-
             ImportOptions importOptions = VltUtils.getImportOptions(aclHandling, importMode);
-            jcrPackage.extract(importOptions);
 
+
+            if (inputStream instanceof FileDistributionPackage.PackageInputStream) {
+                file = ((FileDistributionPackage.PackageInputStream) inputStream).getFile();
+                isTmp = false;
+            } else {
+                file = File.createTempFile("distrpck-tmp-" + System.nanoTime(), "." + TYPE);
+            }
+
+            outputStream = new BufferedOutputStream(new FileOutputStream(file));
+
+            IOUtils.copy(inputStream, outputStream);
+            IOUtils.closeQuietly(outputStream);
+
+            PackageManager packageManager = packaging.getPackageManager();
+            VaultPackage vaultPackage = packageManager.open(file);
+
+            vaultPackage.extract(session, importOptions);
+
+            vaultPackage.close();
         } catch (Exception e) {
             throw new DistributionException(e);
         } finally {
+            IOUtils.closeQuietly(outputStream);
+            if (isTmp) {
+                FileUtils.deleteQuietly(file);
+            }
+
             ungetSession(session);
         }
 
