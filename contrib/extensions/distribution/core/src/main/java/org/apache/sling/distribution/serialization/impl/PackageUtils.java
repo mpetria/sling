@@ -19,14 +19,14 @@
 
 package org.apache.sling.distribution.serialization.impl;
 
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
-import org.apache.sling.distribution.serialization.DistributionPackage;
-import org.apache.sling.distribution.serialization.DistributionPackageInfo;
 
 import javax.annotation.Nonnull;
 import javax.jcr.Binary;
@@ -34,24 +34,20 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.SequenceInputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.HashSet;
 
 
 public class PackageUtils {
     private static Object repolock = new Object();
-
+    private static Object filelock = new Object();
 
     public static Resource getPackagesRoot(ResourceResolver resourceResolver, String packagesRootPath) throws PersistenceException {
         Resource packagesRoot = resourceResolver.getResource(packagesRootPath);
@@ -80,5 +76,116 @@ public class PackageUtils {
         Node content = JcrUtils.getOrAddNode(file, Node.JCR_CONTENT, NodeType.NT_RESOURCE);
         Binary binary = parent.getSession().getValueFactory().createBinary(stream);
         content.setProperty(Property.JCR_DATA, binary);
+
+        Node refs = JcrUtils.getOrAddNode(parent, "refs", NodeType.NT_UNSTRUCTURED);
+
+    }
+
+
+    public static void acquire(Resource resource, @Nonnull String[] holderNames) throws RepositoryException {
+        if (holderNames.length == 0) {
+            throw new IllegalArgumentException("holder name cannot be null or empty");
+        }
+
+        Node parent = resource.adaptTo(Node.class);
+
+        Node refs = parent.getNode("refs");
+
+        for (String holderName : holderNames) {
+            if (!refs.hasNode(holderName)) {
+                refs.addNode(holderName, NodeType.NT_UNSTRUCTURED);
+            }
+        }
+    }
+
+
+    public static boolean release(Resource resource, @Nonnull String[] holderNames) throws RepositoryException {
+        if (holderNames.length == 0) {
+            throw new IllegalArgumentException("holder name cannot be null or empty");
+        }
+
+        Node parent = resource.adaptTo(Node.class);
+
+        Node refs = parent.getNode("refs");
+
+        for (String holderName : holderNames) {
+            Node refNode = refs.getNode(holderName);
+            if (refNode != null) {
+                refNode.remove();
+            }
+        }
+
+        if (!refs.hasNodes()) {
+            refs.remove();
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public static void acquire(File file, @Nonnull String[] holderNames) throws IOException {
+
+        if (holderNames.length == 0) {
+            throw new IllegalArgumentException("holder name cannot be null or empty");
+        }
+
+        synchronized (filelock) {
+            try {
+                HashSet<String> set = new HashSet<String>();
+
+                if (file.exists()) {
+                    ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+                    set = (HashSet<String>) inputStream.readObject();
+                    IOUtils.closeQuietly(inputStream);
+                }
+
+                set.addAll(Arrays.asList(holderNames));
+
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(set);
+                IOUtils.closeQuietly(outputStream);
+
+            } catch (ClassNotFoundException e) {
+
+            }
+        }
+
+
+    }
+
+
+    public static boolean release(File file, @Nonnull String[] holderNames) throws IOException {
+        if (holderNames.length == 0) {
+            throw new IllegalArgumentException("holder name cannot be null or empty");
+        }
+
+        synchronized (filelock) {
+            try {
+
+                HashSet<String> set = new HashSet<String>();
+
+                if (file.exists()) {
+                    ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+                    set = (HashSet<String>) inputStream.readObject();
+                    IOUtils.closeQuietly(inputStream);
+                }
+
+                set.removeAll(Arrays.asList(holderNames));
+
+                if (set.isEmpty()) {
+                    FileUtils.deleteQuietly(file);
+                    return true;
+                }
+
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(set);
+                IOUtils.closeQuietly(outputStream);
+            }
+            catch (ClassNotFoundException e) {
+
+            }
+        }
+        return false;
     }
 }
