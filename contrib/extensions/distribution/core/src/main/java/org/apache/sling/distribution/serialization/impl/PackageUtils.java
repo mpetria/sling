@@ -19,22 +19,39 @@
 
 package org.apache.sling.distribution.serialization.impl;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
+import org.apache.sling.distribution.serialization.DistributionPackage;
+import org.apache.sling.distribution.serialization.DistributionPackageInfo;
 
+import javax.annotation.Nonnull;
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.SequenceInputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 
 public class PackageUtils {
     private static Object repolock = new Object();
+
 
     public static Resource getPackagesRoot(ResourceResolver resourceResolver, String packagesRootPath) throws PersistenceException {
         Resource packagesRoot = resourceResolver.getResource(packagesRootPath);

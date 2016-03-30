@@ -28,8 +28,18 @@ import org.apache.sling.distribution.queue.DistributionQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Package related utility methods
@@ -37,6 +47,9 @@ import java.util.List;
 public class DistributionPackageUtils {
 
     private static final Logger log = LoggerFactory.getLogger(DistributionPackageUtils.class);
+
+    private final static String META_START = "DSTRPACKMETA";
+
 
     /**
      * distribution package origin queue
@@ -173,5 +186,60 @@ public class DistributionPackageUtils {
 
         return deepPaths.toArray(new String[deepPaths.size()]);
     }
+
+    public static InputStream createStreamWithHeader(DistributionPackage distributionPackage) throws IOException {
+
+        DistributionPackageInfo packageInfo = distributionPackage.getInfo();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Map<String, Object> headerInfo = new HashMap<String, Object>();
+        headerInfo.put(DistributionPackageInfo.PROPERTY_REQUEST_TYPE, packageInfo.getRequestType());
+        headerInfo.put(DistributionPackageInfo.PROPERTY_REQUEST_PATHS, packageInfo.getPaths());
+        writeInfo(outputStream, headerInfo);
+
+        InputStream headerStream = new ByteArrayInputStream(outputStream.toByteArray());
+        InputStream bodyStream = distributionPackage.createInputStream();
+        return new SequenceInputStream(headerStream, bodyStream);
+    }
+
+
+    public static void readInfo(InputStream inputStream, Map<String, Object> info) {
+
+        try {
+            int size = META_START.getBytes("UTF-8").length;
+            inputStream.mark(size);
+            byte[] buffer = new byte[size];
+            int bytesRead = inputStream.read(buffer, 0, size);
+            String s = new String(buffer, "UTF-8");
+
+            if (bytesRead > 0 && buffer[0] > 0 && META_START.equals(s)) {
+                ObjectInputStream stream = new ObjectInputStream(inputStream);
+                HashMap<String, Object> map = (HashMap<String, Object>) stream.readObject();
+                info.putAll(map);
+            } else {
+                inputStream.reset();
+            }
+        } catch (IOException e) {
+        } catch (ClassNotFoundException e) {
+
+        }
+
+    }
+
+    public static void writeInfo(OutputStream outputStream, Map<String, Object> info) {
+
+        HashMap<String, Object> map = new HashMap<String, Object>(info);
+
+
+        try {
+            outputStream.write(META_START.getBytes("UTF-8"));
+
+            ObjectOutputStream stream = new ObjectOutputStream(outputStream);
+
+            stream.writeObject(map);
+
+        } catch (IOException e) {
+        }
+    }
+
 
 }

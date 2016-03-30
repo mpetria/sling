@@ -43,8 +43,10 @@ import org.apache.sling.distribution.DistributionRequest;
 import org.apache.sling.distribution.common.DistributionException;
 import org.apache.sling.distribution.common.RecoverableDistributionException;
 import org.apache.sling.distribution.log.impl.DefaultDistributionLog;
+import org.apache.sling.distribution.packaging.impl.DistributionPackageUtils;
 import org.apache.sling.distribution.serialization.DistributionPackage;
 import org.apache.sling.distribution.serialization.DistributionPackageBuilder;
+import org.apache.sling.distribution.serialization.impl.PackageUtils;
 import org.apache.sling.distribution.transport.DistributionTransportSecret;
 import org.apache.sling.distribution.transport.DistributionTransportSecretProvider;
 import org.apache.sling.distribution.util.RequestUtils;
@@ -96,7 +98,7 @@ public class SimpleHttpDistributionTransport implements DistributionTransport {
 
                 InputStream inputStream = null;
                 try {
-                    inputStream = distributionPackage.createInputStream();
+                    inputStream = DistributionPackageUtils.createStreamWithHeader(distributionPackage);
 
                     req = req.bodyStream(inputStream, ContentType.APPLICATION_OCTET_STREAM);
 
