@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class ResourceDistributionPackageBuilder extends AbstractDistributionPackageBuilder {
@@ -136,8 +137,9 @@ public class ResourceDistributionPackageBuilder extends AbstractDistributionPack
 
 
     Resource uploadStream(Resource parent, InputStream stream, long size) throws PersistenceException {
-        String name = getType() + "-" + System.currentTimeMillis();
+        String name = "dstrpck-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString();
         Map<String, Object> props = new HashMap<String, Object>();
+        props.put(ResourceResolver.PROPERTY_RESOURCE_TYPE, "sling:Folder");
         props.put("type", getType());
 
         if (size != -1) {
@@ -152,7 +154,7 @@ public class ResourceDistributionPackageBuilder extends AbstractDistributionPack
 
         }
 
-        resource.getResourceResolver().commit();
+        parent.getResourceResolver().commit();
 
         return resource;
     }
